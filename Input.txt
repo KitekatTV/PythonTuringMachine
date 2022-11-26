@@ -1,7 +1,8 @@
-iseq=1010;
+iseq=0010;
 write(1);
 if(1) {
 	>;
+	write(B);
 	>;
 };
 write(0);

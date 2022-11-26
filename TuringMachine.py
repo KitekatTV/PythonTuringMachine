@@ -35,8 +35,11 @@ def Act(command: str) -> str:
 		if command[1] == numsArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
 			for a in range(len(addcommands)):
-				if Act(addcommands[a]) == "Halt":
+				status = Act(addcommands[a])
+				if status == "Halt":
 					return "Halt"
+				elif status == "OK":
+					DrawTerminal(numsArray, pointerPos, stepMode)
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
 		else:
@@ -45,13 +48,17 @@ def Act(command: str) -> str:
 		if command[1] != numsArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
 			for a in range(len(addcommands)):
-				if Act(addcommands[a]) == "Halt":
+				status = Act(addcommands[a])
+				if status == "Halt":
 					return "Halt"
+				elif status == "OK":
+					DrawTerminal(numsArray, pointerPos, stepMode)
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
 		else:
 			return "NoDelay"
 	elif command[0] == 'H':
+
 		return "Halt"
 
 	return "OK"
@@ -64,12 +71,13 @@ def Run(commands: list):
 
 	if commands[0][0] == 'S':
 		commands[0] = commands[0][1:].replace(',','B')
-		print(commands[0])
 		numsArray = list(commands[0])
 		commands.pop(0)
 
 	DrawTerminal(numsArray, pointerPos,stepMode)
-	sleep(1)
+
+	if not stepMode:
+		sleep(1)
 
 	for c in commands:
 		status = Act(c)
@@ -89,6 +97,8 @@ def Run(commands: list):
 def ParseArguments():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('path', type=str, help='Path to program')
+	parser.add_argument('-s', '--step', action='store_true', help='Enables step-by-step mode')
+	parser.add_argument('-d', '--delay', type=int, help='Sets delay between steps in seconds. Does nothing in step-by-step mode')
 	Args = parser.parse_args()
 	return Args
 
@@ -96,8 +106,16 @@ def ParseArguments():
 # Program entry point
 def Entry():
 	global stepMode
-	stepMode=True #DEBUG
-	path = ParseArguments().path
+	global commandDelay
+
+	args = ParseArguments()
+	path = args.path
+
+	if args.step:
+		stepMode=True
+
+	if args.delay is not None:
+		commandDelay = args.delay
 
 	if not os.path.isfile(path):
 		print(f"ERR: No such file - {path}")
