@@ -29,18 +29,34 @@ def CheckForErrors(data: str) -> bool:
 		raise Exceptions.EmptyStatementBodyException("if")
 	if re.search(r"\bif\b\(.{1,2}\){.*?}[^;]", data):
 		raise Exceptions.MissingSemicolonException("if")
+	# halt
+	if re.search(r"\bhalt\b[^;]", data):
+		raise Exceptions.MissingSemicolonException("halt")
+	# input sequence
+	if re.search(r"\biseq\b[^=]", data):
+		raise Exceptions.MissingArgumentException("iseq")
+	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
+		raise Exceptions.IncorrectArgumentException("iseq")
+	if re.search(r"\biseq\b=([01B]+,)+(?![01B])", data):
+		raise Exceptions.NoAdditionalArgumentException()
+	if re.search(r"(\biseq\b.*){2,}", data):
+		raise Exceptions.RepeatedIseqException()
+	if re.search(r".+\biseq\b", data):
+		raise Exceptions.IncorrectIseqUsageException()
+	if re.search(r"(?>\biseq\b=[^;]+)(?!;)", data): # Requires python 3.11 (2022-05-07)
+		raise Exceptions.MissingSemicolonException("iseq")
 	return True
 
 
 def CheckForWarnings(data: str):
 	if ";;" in data:
 		print("WARN: Compile info - unnecessary ;") # TODO: false positive?
-	if not "terminate" in data:
+	if not "halt" in data:
 		print("WARN: Compile info - program has no end function (terminate)")
 
 
 # Check if given command exists
-available_commands = ["write(",">","<","if(","terminate"]
+available_commands = ["write(",">","<","if(","halt","iseq="]
 def CheckIfExists(command: str) -> bool:
 	if not any(command.startswith(a) for a in available_commands):
 		return False
@@ -55,8 +71,8 @@ def CompileCommand(c: str) -> str:
 		return "R."
 	elif c == "<": # Move left
 		return "L."
-	elif c == "terminate": # End program
-		return "T."
+	elif c == "halt": # End program
+		return "H."
 	elif c.startswith("if"): # if statement
 		if c[3] == '!':
 			output = ""
@@ -68,6 +84,8 @@ def CompileCommand(c: str) -> str:
 			for s in re.compile(r"((?:[^;])+)").split(c[6:-1])[1::2]:
 				output += CompileCommand(s)
 			return f"I{c[3]}:{output[0:-1]}:."
+	elif c.startswith("iseq="): # input sequence
+		return f"S{c[5:]}."
 
 
 # Compiler
@@ -85,6 +103,7 @@ def Compile(path: str) -> str:
 					output += CompileCommand(c)
 			return output
 
+
 # Parses compiled program to command list
 def CommandList(path: str) -> list:
 	program = Compile(path)
@@ -92,5 +111,6 @@ def CommandList(path: str) -> list:
 		raise Exceptions.EmptyFileException(path)
 	elif not program:
 		raise Exceptions.CompileException("Unknown error")
-	a = re.compile(r"((?:[^.:]|:[^:]*:)+)").split(program)[1::2]
-	return a
+
+	commands = re.compile(r"((?:[^.:]|:[^:]*:)+)").split(program)[1::2]
+	return commands

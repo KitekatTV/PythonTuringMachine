@@ -1,9 +1,10 @@
+iseq=1010;
 write(1);
-if() {
+if(1) {
 	>;
 	>;
 };
 write(0);
 <;
 write(1);
-terminate;
+halt;

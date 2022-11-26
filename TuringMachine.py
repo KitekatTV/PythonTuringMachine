@@ -51,7 +51,7 @@ def Act(command: str) -> str:
 					sleep(commandDelay)
 		else:
 			return "NoDelay"
-	elif command[0] == 'T':
+	elif command[0] == 'H':
 		return "Halt"
 
 	return "OK"
@@ -60,6 +60,13 @@ def Act(command: str) -> str:
 # Calls function to execute given commands then calls function that draws in console
 def Run(commands: list):
 	global stepMode
+	global numsArray
+
+	if commands[0][0] == 'S':
+		commands[0] = commands[0][1:].replace(',','B')
+		print(commands[0])
+		numsArray = list(commands[0])
+		commands.pop(0)
 
 	DrawTerminal(numsArray, pointerPos,stepMode)
 	sleep(1)
