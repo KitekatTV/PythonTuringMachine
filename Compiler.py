@@ -1,48 +1,34 @@
 import re
-
-# TODO: make this method throw custom exceptions
-def ThrowCompileException(s):
-	print(f"ERR: Compile error - {s}")
+import Exceptions
 
 
 # Makes sure all commands are written correctly. Does not check if command exists
 def CheckForErrors(data: str) -> bool:
 	# write
 	if re.search(r"\bwrite\b[^(]", data):
-		ThrowCompileException("No argument for write")
-		return False
+		raise Exceptions.MissingArgumentException("write")
 	if re.search(r"\bwrite\b\([^01B]", data):
-		ThrowCompileException("Incorrect argument (not 0,1 or B)")
-		return False
+		raise Exceptions.IncorrectArgumentException("write")
 	if re.search(r"\bwrite\b\(.[^)]", data):
-		ThrowCompileException("Parentheses are not closed")
-		return False
+		raise Exceptions.NotClosedParenthesesException("write")
 	if re.search(r"\bwrite\b\(.\)[^;]", data):
-		ThrowCompileException("; expected")
-		return False
+		raise Exceptions.MissingSemicolonException("write")
 	# move pointer
 	if re.search(r"[><][^;]", data):
-		ThrowCompileException("; expected")
-		return False
+		raise Exceptions.MissingSemicolonException("Move pointer command (\"<\" or  \">\")")
 	# if
 	if re.search(r"\bif\b[^(]", data):
-		ThrowCompileException("No argument for if")
-		return False
+		raise Exceptions.MissingArgumentException("if")
 	if re.search(r"\bif\b\(([^01B]{2}|[01B]!)", data):
-		ThrowCompileException("Incorrect argument (not 0,1 or B)")
-		return False
+		raise Exceptions.IncorrectArgumentException("if")
 	if re.search(r"\bif\b\(([01B]|![01B])[^)]", data):
-		ThrowCompileException("Parentheses are not closed")
-		return False
+		raise Exceptions.NotClosedParenthesesException("if")
 	if re.search(r"\bif\b\(.{1,2}\)[^{]", data):
-		ThrowCompileException("No body for if argument")
-		return False
+		raise Exceptions.MissingStatementBodyException("if")
 	if re.search(r"\bif\b\(.{1,2}\){}", data):
-		ThrowCompileException("if argument body cannot be empty")
-		return False
+		raise Exceptions.EmptyStatementBodyException("if")
 	if re.search(r"\bif\b\(.{1,2}\){.*?}[^;]", data):
-		ThrowCompileException("; expected")
-		return False
+		raise Exceptions.MissingSemicolonException("if")
 	return True
 
 
@@ -94,22 +80,17 @@ def Compile(path: str) -> str:
 			output = ""
 			for c in commands:
 				if not CheckIfExists(c):
-					ThrowCompileException(f"command \"{c}\" does not exist")
-					return None
+					raise Exceptions.UnknownCommandException(c)
 				else:
 					output += CompileCommand(c)
 			return output
-		else:
-			return None
 
 # Parses compiled program to command list
 def CommandList(path: str) -> list:
 	program = Compile(path)
 	if program == "":
-		print("ERR: File is empty")
-		return None
+		raise Exceptions.EmptyFileException(path)
 	elif not program:
-		print("FATAL: The program has exited with fatal error - Compilation failed")
-		return None
+		raise Exceptions.CompileException("Unknown error")
 	a = re.compile(r"((?:[^.:]|:[^:]*:)+)").split(program)[1::2]
 	return a
