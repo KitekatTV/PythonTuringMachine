@@ -13,7 +13,6 @@ selectedIndex = 0 # Index of nums array element thats is currently under the poi
 mainArray = ['B']
 startIndex = 0
 
-
 # Executes given command
 def Act(command: str) -> str:
 	global pointerPos
@@ -23,6 +22,7 @@ def Act(command: str) -> str:
 
 	if command[0] == 'W':
 		mainArray[selectedIndex] = str(command[1])
+
 	elif command[0] == 'R':
 		selectedIndex += 1
 
@@ -30,10 +30,11 @@ def Act(command: str) -> str:
 			pointerPos += 1
 
 		if pointerPos == 19:
-			startIndex += 1
-		
+			startIndex += 1	
+
 		if selectedIndex == len(mainArray) - 1:
 			mainArray.append('B')	
+
 	elif command[0] == 'L':
 		if selectedIndex == 0:
 			return "Halt"
@@ -45,34 +46,42 @@ def Act(command: str) -> str:
 
 			if pointerPos == 1:
 				startIndex -= 1
+
 	elif command[0] == 'I':
 		if command[1] == mainArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
+
 			for a in range(len(addcommands)):
 				status = Act(addcommands[a])
 				if status == "Halt":
 					return "Halt"
+
 				elif status == "OK":
 					DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
 		else:
 			return "NoDelay"
+
 	elif command[0] == 'N':
 		if command[1] != mainArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
+
 			for a in range(len(addcommands)):
 				status = Act(addcommands[a])
 				if status == "Halt":
 					return "Halt"
+
 				elif status == "OK":
 					DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
 		else:
 			return "NoDelay"
-	elif command[0] == 'H':
 
+	elif command[0] == 'H':
 		return "Halt"
 
 	return "OK"
@@ -99,8 +108,10 @@ def Run(commands: list):
 		if status == "Halt":
 			DrawTerminal(mainArray, startIndex, pointerPos, False, True)
 			break
+
 		elif status == "OK":
 			DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+
 		if status != "NoDelay" and not stepMode:
 			sleep(commandDelay)
 	else:

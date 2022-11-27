@@ -11,10 +11,10 @@ BarTemplate = [' _______________________________________________________________
 PointerTemplate = ['\ /',\
 				   '_V_']
 
-StepNumber = 0
+stepNumber = 0
 	
 # Handles everything related to drawing the in terminal
-def Draw(numstoprint: list, startindex: int, pointerpos: int, stepMode: bool, halt: bool):
+def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt: bool):
 	# Starts curses
 	window = curses.initscr()
 	curses.noecho()
@@ -33,43 +33,45 @@ def Draw(numstoprint: list, startindex: int, pointerpos: int, stepMode: bool, ha
 
 	# Draws the bar template
 	for i in range(len(BarTemplate)):
-		window.addstr(i,0,BarTemplate[i])
-	
-	# Adds numbers to cells
-	if len(numstoprint) < 20:
-		for i in range(len(numstoprint)):
-			window.addch(3, 9 + (4 * i), str(numstoprint[i]))		
-	else:
-		for i in range(startindex,startindex + 19):
-			window.addch(3, 9 + (4 * (i - startindex)), str(numstoprint[i]))			
+		window.addstr(i, 0, BarTemplate[i])
 
-	if startindex == 0:
+	# Adds numbers to cells
+	if len(numsToPrint) < 20:
+		for i in range(len(numsToPrint)):
+			window.addch(3, 9 + (4 * i), str(numsToPrint[i]))
+	else:
+		for i in range(startIndex,startIndex + 19):
+			window.addch(3, 9 + (4 * (i - startIndex)), str(numsToPrint[i]))
+
+	if startIndex == 0:
 		window.addstr(3, 1, "START")
-	elif startindex > 9999:
+	elif startIndex > 9999:
 		window.addstr(3, 1, "9999+")
 	else:
-		window.addstr(3, 1, (str(startindex) + '.' * (4 - startindex // 10)))
+		window.addstr(3, 1, (str(startIndex) + '.' * (4 - startIndex // 10)))
 
-	if startindex + 19 >= len(numstoprint):
+	if startIndex + 19 >= len(numsToPrint):
 		window.addstr(3, 85, " END ")
+	elif len(numsToPrint) - startIndex - 19 > 9999:
+		window.addstr(3, 85, "9999+")
 	else:
-		window.addstr(3, 85, '.' * (4 - ((len(numstoprint) - startindex - 19) // 10)) + str(len(numstoprint) - startindex - 19))
+		window.addstr(3, 85, '.' * (4 - ((len(numsToPrint) - startIndex - 19) // 10)) + str(len(numsToPrint) - startIndex - 19))
 
 	# Draw the pointer
-	window.addstr(1, 8 + (4 * (pointerpos - 1)), PointerTemplate[0])
-	window.addstr(2, 8 + (4 * (pointerpos - 1)), PointerTemplate[1])
-	
+	window.addstr(1, 8 + (4 * (pointerPos - 1)), PointerTemplate[0])
+	window.addstr(2, 8 + (4 * (pointerPos - 1)), PointerTemplate[1])
+
 	# Refresh the window
 	window.refresh()
 
 	# Step-by-step mode
 	if stepMode:
-		global StepNumber
-		window.addstr(7, 0, f"STATUS: Step-by-step mode is active [Step {StepNumber}]. Press any key to move to the next step...")
-		StepNumber += 1
+		global stepNumber
+		window.addstr(7, 0, f"STATUS: Step-by-step mode is active [Step {stepNumber}]. Press any key to move to the next step...")
+		stepNumber += 1
 		window.getch()
 	
 
 # Calls theD Draw() function
-def DrawTerminal(numstoprint: list, startindex:int, pointerpos: int, stepMode: bool, halt=False,):
-	Draw(numstoprint, startindex, pointerpos, stepMode, halt)
+def DrawTerminal(numsToPrint: list, startIndex:int, pointerPos: int, stepMode: bool, halt = False,):
+	Draw(numsToPrint, startIndex, pointerPos, stepMode, halt)

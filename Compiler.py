@@ -1,7 +1,6 @@
 import re
 import Exceptions
 
-
 # Makes sure all commands are written correctly. Does not check if command exists
 def CheckForErrors(data: str) -> bool:
 	# write
@@ -52,28 +51,37 @@ def CheckForWarnings(data: str):
 	if ";;" in data:
 		print("WARN: Compile info - unnecessary ;") # TODO: false positive?
 	if not "halt" in data:
-		print("WARN: Compile info - program has no end function (terminate)")
+		print("WARN: Compile info - program has no end function (\"halt\")")
 
 
 # Check if given command exists
-available_commands = ["write(",">","<","if(","halt","iseq="]
+availableCommands = ["write(",">","<","if(","halt","iseq="]
 def CheckIfExists(command: str) -> bool:
-	if not any(command.startswith(a) for a in available_commands):
+	if not any(command.startswith(a) for a in availableCommands):
 		return False
 	return True
 
 
 # "Compiles" (converts) text to commands that are easier to use later
 def CompileCommand(c: str) -> str:
-	if re.match("write\(.\)$", c): # write()
+	# write()
+	if re.match("write\(.\)$", c):
 		return f"W{c[c.find('(') + 1:len(c) - 1]}."
-	elif c == ">": # Move right
+
+	# Move right
+	elif c == ">":
 		return "R."
-	elif c == "<": # Move left
+
+	# Move left
+	elif c == "<":
 		return "L."
-	elif c == "halt": # End program
+
+	# End program
+	elif c == "halt":
 		return "H."
-	elif c.startswith("if"): # if statement
+
+	# if statement
+	elif c.startswith("if"):
 		if c[3] == '!':
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[7:-1])[1::2]:
@@ -84,7 +92,9 @@ def CompileCommand(c: str) -> str:
 			for s in re.compile(r"((?:[^;])+)").split(c[6:-1])[1::2]:
 				output += CompileCommand(s)
 			return f"I{c[3]}:{output[0:-1]}:."
-	elif c.startswith("iseq="): # input sequence
+
+	# input sequence
+	elif c.startswith("iseq="): 
 		return f"S{c[5:]}."
 
 
