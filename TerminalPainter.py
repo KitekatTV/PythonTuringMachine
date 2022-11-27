@@ -14,7 +14,7 @@ PointerTemplate = ['\ /',\
 StepNumber = 0
 	
 # Handles everything related to drawing the in terminal
-def Draw(numstoprint: list, pointerpos: int, stepMode: bool, halt: bool):
+def Draw(numstoprint: list, startindex: int, pointerpos: int, stepMode: bool, halt: bool):
 	# Starts curses
 	window = curses.initscr()
 	curses.noecho()
@@ -36,8 +36,24 @@ def Draw(numstoprint: list, pointerpos: int, stepMode: bool, halt: bool):
 		window.addstr(i,0,BarTemplate[i])
 	
 	# Adds numbers to cells
-	for i in range(min(18, len(numstoprint))):
-		window.addch(3, 9 + (4 * i), str(numstoprint[i]))
+	if len(numstoprint) < 20:
+		for i in range(len(numstoprint)):
+			window.addch(3, 9 + (4 * i), str(numstoprint[i]))		
+	else:
+		for i in range(startindex,startindex + 19):
+			window.addch(3, 9 + (4 * (i - startindex)), str(numstoprint[i]))			
+
+	if startindex == 0:
+		window.addstr(3, 1, "START")
+	elif startindex > 9999:
+		window.addstr(3, 1, "9999+")
+	else:
+		window.addstr(3, 1, (str(startindex) + '.' * (4 - startindex // 10)))
+
+	if startindex + 19 >= len(numstoprint):
+		window.addstr(3, 85, " END ")
+	else:
+		window.addstr(3, 85, '.' * (4 - ((len(numstoprint) - startindex - 19) // 10)) + str(len(numstoprint) - startindex - 19))
 
 	# Draw the pointer
 	window.addstr(1, 8 + (4 * (pointerpos - 1)), PointerTemplate[0])
@@ -55,5 +71,5 @@ def Draw(numstoprint: list, pointerpos: int, stepMode: bool, halt: bool):
 	
 
 # Calls theD Draw() function
-def DrawTerminal(numstoprint: list, pointerpos: int, stepMode: bool, halt=False,):
-	Draw(numstoprint, pointerpos, stepMode, halt)
+def DrawTerminal(numstoprint: list, startindex:int, pointerpos: int, stepMode: bool, halt=False,):
+	Draw(numstoprint, startindex, pointerpos, stepMode, halt)

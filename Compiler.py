@@ -9,7 +9,7 @@ def CheckForErrors(data: str) -> bool:
 		raise Exceptions.MissingArgumentException("write")
 	if re.search(r"\bwrite\b\([^01B]", data):
 		raise Exceptions.IncorrectArgumentException("write")
-	if re.search(r"\bwrite\b\(.[^)]", data):
+	if re.search(r"\bwrite\b\(.([^)]|$)", data):
 		raise Exceptions.NotClosedParenthesesException("write")
 	if re.search(r"\bwrite\b\(.\)[^;]", data):
 		raise Exceptions.MissingSemicolonException("write")

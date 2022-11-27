@@ -9,50 +9,64 @@ stepMode = False
 commandDelay = 1 # Delay between commands execution in run mode
 pointerPos = 1 # Position of segment below poiter (1-19)
 selectedIndex = 0 # Index of nums array element thats is currently under the pointer
-numsArray = ['B']
+
+mainArray = ['B']
+startIndex = 0
 
 
 # Executes given command
 def Act(command: str) -> str:
 	global pointerPos
 	global selectedIndex
-	global numsArray
+	global mainArray
+	global startIndex
 
 	if command[0] == 'W':
-		numsArray[selectedIndex] = str(command[1])
+		mainArray[selectedIndex] = str(command[1])
 	elif command[0] == 'R':
-		pointerPos += 1
 		selectedIndex += 1
-		if selectedIndex == len(numsArray):
-			numsArray.append('B')
+
+		if pointerPos < 19:
+			pointerPos += 1
+
+		if pointerPos == 19:
+			startIndex += 1
+		
+		if selectedIndex == len(mainArray) - 1:
+			mainArray.append('B')	
 	elif command[0] == 'L':
 		if selectedIndex == 0:
 			return "Halt"
 		else:
-			pointerPos -= 1
 			selectedIndex -= 1
+
+			if pointerPos > 1:
+				pointerPos -= 1
+
+			if pointerPos == 1:
+				startIndex -= 1
 	elif command[0] == 'I':
-		if command[1] == numsArray[selectedIndex]:
+		if command[1] == mainArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
 			for a in range(len(addcommands)):
 				status = Act(addcommands[a])
 				if status == "Halt":
 					return "Halt"
 				elif status == "OK":
-					DrawTerminal(numsArray, pointerPos, stepMode)
+					DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
 		else:
 			return "NoDelay"
 	elif command[0] == 'N':
-		if command[1] != numsArray[selectedIndex]:
+		if command[1] != mainArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
 			for a in range(len(addcommands)):
 				status = Act(addcommands[a])
 				if status == "Halt":
 					return "Halt"
 				elif status == "OK":
-					DrawTerminal(numsArray, pointerPos, stepMode)
+					DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
 		else:
@@ -67,14 +81,15 @@ def Act(command: str) -> str:
 # Calls function to execute given commands then calls function that draws in console
 def Run(commands: list):
 	global stepMode
-	global numsArray
+	global mainArray
+	global startIndex
 
 	if commands[0][0] == 'S':
 		commands[0] = commands[0][1:].replace(',','B')
-		numsArray = list(commands[0])
+		mainArray = list(commands[0])
 		commands.pop(0)
 
-	DrawTerminal(numsArray, pointerPos,stepMode)
+	DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
 
 	if not stepMode:
 		sleep(1)
@@ -82,15 +97,15 @@ def Run(commands: list):
 	for c in commands:
 		status = Act(c)
 		if status == "Halt":
-			DrawTerminal(numsArray, pointerPos, False, True)
+			DrawTerminal(mainArray, startIndex, pointerPos, False, True)
 			break
 		elif status == "OK":
-			DrawTerminal(numsArray, pointerPos, stepMode)
+			DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
 		if status != "NoDelay" and not stepMode:
 			sleep(commandDelay)
 	else:
 		while True:
-			DrawTerminal(numsArray, pointerPos,stepMode)
+			DrawTerminal(mainArray, startIndex, pointerPos,stepMode)
 
 
 # Parses terminal arguments
