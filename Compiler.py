@@ -1,4 +1,5 @@
 import re
+import warnings
 import Exceptions
 
 # Makes sure all commands are written correctly. Does not check if command exists
@@ -10,29 +11,29 @@ def CheckForErrors(data: str) -> bool:
 		raise Exceptions.IncorrectArgumentException("write")
 	if re.search(r"\bwrite\b\(.([^)]|$)", data):
 		raise Exceptions.NotClosedParenthesesException("write")
-	if re.search(r"\bwrite\b\(.\)[^;]", data):
+	if re.search(r"\bwrite\b\(.\)(?!;)", data):
 		raise Exceptions.MissingSemicolonException("write")
 	# move pointer
-	if re.search(r"[><][^;]", data):
+	if re.search(r"[><](?!;)", data):
 		raise Exceptions.MissingSemicolonException("Move pointer command (\"<\" or  \">\")")
 	# if
-	if re.search(r"\bif\b[^(]", data):
+	if re.search(r"\bif\b(?!\()", data):
 		raise Exceptions.MissingArgumentException("if")
 	if re.search(r"\bif\b\(([^01B]{2}|[01B]!)", data):
 		raise Exceptions.IncorrectArgumentException("if")
 	if re.search(r"\bif\b\(([01B]|![01B])[^)]", data):
 		raise Exceptions.NotClosedParenthesesException("if")
-	if re.search(r"\bif\b\(.{1,2}\)[^{]", data):
+	if re.search(r"\bif\b\(.{1,2}\)(?!{)", data):
 		raise Exceptions.MissingStatementBodyException("if")
 	if re.search(r"\bif\b\(.{1,2}\){}", data):
 		raise Exceptions.EmptyStatementBodyException("if")
-	if re.search(r"\bif\b\(.{1,2}\){.*?}[^;]", data):
+	if re.search(r"\bif\b\(.{1,2}\){.*?}(?!;)", data):
 		raise Exceptions.MissingSemicolonException("if")
 	# halt
-	if re.search(r"\bhalt\b[^;]", data):
+	if re.search(r"\bhalt\b(?!;)", data):
 		raise Exceptions.MissingSemicolonException("halt")
 	# input sequence
-	if re.search(r"\biseq\b[^=]", data):
+	if re.search(r"\biseq\b(?!=)", data):
 		raise Exceptions.MissingArgumentException("iseq")
 	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
 		raise Exceptions.IncorrectArgumentException("iseq")
@@ -49,17 +50,26 @@ def CheckForErrors(data: str) -> bool:
 
 def CheckForWarnings(data: str):
 	if ";;" in data:
-		print("WARN: Compile info - unnecessary ;") # TODO: false positive?
+		warnings.warn(Exceptions.UnnecessarySemicolonWarning())
 	if not "halt" in data:
-		print("WARN: Compile info - program has no end function (\"halt\")")
+		warnings.warn(Exceptions.NoExitFunctionWarning())
 
 
 # Check if given command exists
-availableCommands = ["write(",">","<","if(","halt","iseq="]
 def CheckIfExists(command: str) -> bool:
-	if not any(command.startswith(a) for a in availableCommands):
-		return False
-	return True
+	if re.match(r"\bwrite\b\(.\)", command):
+		return True
+	if re.match(r">$", command):
+		return True
+	if re.match(r"<$", command):
+		return True
+	if re.match(r"\bif\b\(.{1,2}\)", command):
+		return True
+	if re.match(r"\bhalt\b", command):
+		return True
+	if re.match(r"\biseq\b=", command):
+		return True
+	return False
 
 
 # "Compiles" (converts) text to commands that are easier to use later

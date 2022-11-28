@@ -1,3 +1,21 @@
+# Compile warnings
+class CompileWarning(Warning):
+	def __init__(self, message):
+		self.message = f"\nWARN: Compile warning >> {message}"
+		super().__init__(self.message)
+
+class UnnecessarySemicolonWarning(CompileWarning):
+	def __init__(self):
+		self.message = f"Unnecessary semicolon (\";\")"
+		super().__init__(self.message)
+
+class NoExitFunctionWarning(CompileWarning):
+	def __init__(self):
+		self.message = f"Program does not have an exit function (\"halt;\")"
+		super().__init__(self.message)
+
+
+# Compile exceptions
 class CompileException(Exception):
 	def __init__(self, message):
 		self.message = f"FATAL: Compile failed >> {message}"
