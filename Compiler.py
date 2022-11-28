@@ -1,7 +1,6 @@
 import re
 import Exceptions
 
-
 # Makes sure all commands are written correctly. Does not check if command exists
 def CheckForErrors(data: str) -> bool:
 	# write
@@ -9,7 +8,7 @@ def CheckForErrors(data: str) -> bool:
 		raise Exceptions.MissingArgumentException("write")
 	if re.search(r"\bwrite\b\([^01B]", data):
 		raise Exceptions.IncorrectArgumentException("write")
-	if re.search(r"\bwrite\b\(.[^)]", data):
+	if re.search(r"\bwrite\b\(.([^)]|$)", data):
 		raise Exceptions.NotClosedParenthesesException("write")
 	if re.search(r"\bwrite\b\(.\)[^;]", data):
 		raise Exceptions.MissingSemicolonException("write")
@@ -29,35 +28,60 @@ def CheckForErrors(data: str) -> bool:
 		raise Exceptions.EmptyStatementBodyException("if")
 	if re.search(r"\bif\b\(.{1,2}\){.*?}[^;]", data):
 		raise Exceptions.MissingSemicolonException("if")
+	# halt
+	if re.search(r"\bhalt\b[^;]", data):
+		raise Exceptions.MissingSemicolonException("halt")
+	# input sequence
+	if re.search(r"\biseq\b[^=]", data):
+		raise Exceptions.MissingArgumentException("iseq")
+	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
+		raise Exceptions.IncorrectArgumentException("iseq")
+	if re.search(r"\biseq\b=([01B]+,)+(?![01B])", data):
+		raise Exceptions.NoAdditionalArgumentException()
+	if re.search(r"(\biseq\b.*){2,}", data):
+		raise Exceptions.RepeatedIseqException()
+	if re.search(r".+\biseq\b", data):
+		raise Exceptions.IncorrectIseqUsageException()
+	if re.search(r"(?>\biseq\b=[^;]+)(?!;)", data): # Requires python 3.11 (2022-05-07)
+		raise Exceptions.MissingSemicolonException("iseq")
 	return True
 
 
 def CheckForWarnings(data: str):
 	if ";;" in data:
 		print("WARN: Compile info - unnecessary ;") # TODO: false positive?
-	if not "terminate" in data:
-		print("WARN: Compile info - program has no end function (terminate)")
+	if not "halt" in data:
+		print("WARN: Compile info - program has no end function (\"halt\")")
 
 
 # Check if given command exists
-available_commands = ["write(",">","<","if(","terminate"]
+availableCommands = ["write(",">","<","if(","halt","iseq="]
 def CheckIfExists(command: str) -> bool:
-	if not any(command.startswith(a) for a in available_commands):
+	if not any(command.startswith(a) for a in availableCommands):
 		return False
 	return True
 
 
 # "Compiles" (converts) text to commands that are easier to use later
 def CompileCommand(c: str) -> str:
-	if re.match("write\(.\)$", c): # write()
+	# write()
+	if re.match("write\(.\)$", c):
 		return f"W{c[c.find('(') + 1:len(c) - 1]}."
-	elif c == ">": # Move right
+
+	# Move right
+	elif c == ">":
 		return "R."
-	elif c == "<": # Move left
+
+	# Move left
+	elif c == "<":
 		return "L."
-	elif c == "terminate": # End program
-		return "T."
-	elif c.startswith("if"): # if statement
+
+	# End program
+	elif c == "halt":
+		return "H."
+
+	# if statement
+	elif c.startswith("if"):
 		if c[3] == '!':
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[7:-1])[1::2]:
@@ -68,6 +92,10 @@ def CompileCommand(c: str) -> str:
 			for s in re.compile(r"((?:[^;])+)").split(c[6:-1])[1::2]:
 				output += CompileCommand(s)
 			return f"I{c[3]}:{output[0:-1]}:."
+
+	# input sequence
+	elif c.startswith("iseq="): 
+		return f"S{c[5:]}."
 
 
 # Compiler
@@ -85,6 +113,7 @@ def Compile(path: str) -> str:
 					output += CompileCommand(c)
 			return output
 
+
 # Parses compiled program to command list
 def CommandList(path: str) -> list:
 	program = Compile(path)
@@ -92,5 +121,6 @@ def CommandList(path: str) -> list:
 		raise Exceptions.EmptyFileException(path)
 	elif not program:
 		raise Exceptions.CompileException("Unknown error")
-	a = re.compile(r"((?:[^.:]|:[^:]*:)+)").split(program)[1::2]
-	return a
+
+	commands = re.compile(r"((?:[^.:]|:[^:]*:)+)").split(program)[1::2]
+	return commands

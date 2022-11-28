@@ -1,9 +1,0 @@
-write(1);
-if() {
-	>;
-	>;
-};
-write(0);
-<;
-write(1);
-terminate;
