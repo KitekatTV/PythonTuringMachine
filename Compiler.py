@@ -65,7 +65,7 @@ def CheckIfExists(command: str) -> bool:
 # "Compiles" (converts) text to commands that are easier to use later
 def CompileCommand(c: str) -> str:
 	# write()
-	if re.match("write\(.\)$", c):
+	if re.match(r"write\(.\)$", c):
 		return f"W{c[c.find('(') + 1:len(c) - 1]}."
 
 	# Move right
