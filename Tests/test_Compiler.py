@@ -10,6 +10,7 @@ from Compiler import Compile
 from Compiler import CommandLists
 from Compiler import CheckIfExists
 from Compiler import StateParser
+from Compiler import CheckForWarnings
 
 # CheckForCommandErrors tests
 def test_write_no_argument():
@@ -113,7 +114,14 @@ def test_iseq_multisegment_correct():
 	assert CheckForCommandErrors("iseq=1010,10101,10;") == True
 
 
-# TODO: CheckForWarning tests
+# CheckForWarning tests
+def test_double_semicolon_warn():
+	with pytest.warns(Exceptions.UnnecessarySemicolonWarning):
+		CheckForWarnings("write(0);;halt;")
+
+def test_no_halt_warn():
+	with pytest.warns(Exceptions.NoExitFunctionWarning):
+		CheckForWarnings(">;>;")
 
 # TODO: CheckIfExists tests
 def test_exists_write():

@@ -122,6 +122,7 @@ def StateParser(path: str) -> tuple:
 	with open(path,"r") as f:
 		codeText = "".join(f.read().split())
 		if CheckForStateErrors(codeText):
+			CheckForWarnings(codeText)
 			trySeq = re.search(r"\biseq\b=[01,]+;", codeText)
 			if trySeq:
 				seq = trySeq.group(0)[5:-1]
@@ -144,7 +145,6 @@ def Compile(path: str) -> list:
 	commandStrings = []
 	for i in range(len(stateCommands)):
 		if CheckForCommandErrors(stateCommands[i]):
-			CheckForWarnings(stateCommands[i])
 			commands = re.compile(r"((?:[^;{]|{[^}]*})+)").split(stateCommands[i])[1::2]
 			output = ""
 			for c in commands:
