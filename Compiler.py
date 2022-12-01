@@ -2,9 +2,30 @@ import re
 import warnings
 import Exceptions
 
-# TODO: Makes sure all commands are written correctly.
-def CheckForStateErrors(data: str) -> bool:
+# Makes sure states in input sequence are defined correctly. Executed before CheckForCommandErrors()
+def CheckForParseErrors(data: str) -> bool:
+	# input sequence
+	if re.search(r"\biseq\b(?!=)", data):
+		raise Exceptions.MissingArgumentException("iseq")
+	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
+		raise Exceptions.IncorrectArgumentException("iseq")
+	if re.search(r"\biseq\b=([01B]+,)+(?![01B])", data):
+		raise Exceptions.NoAdditionalArgumentException()
+	if re.search(r"(\biseq\b.*){2,}", data):
+		raise Exceptions.RepeatedIseqException()
+	if re.search(r".+\biseq\b", data):
+		raise Exceptions.IncorrectIseqUsageException()
+	if re.search(r"(?>\biseq\b=[^;]+)(?!;)", data): # Requires python 3.11 (2022-05-07)
+		raise Exceptions.MissingSemicolonException("iseq")
+	# states
+	if re.search(r"(^(?<!{)[^{]*(\b(write|halt|if|tostate)\b|[<>])|(?<=})(\b(write|halt|if|tostate)\b|[<>])[^}]*$|(?=[^{}]*(\b(write|halt|if|tostate)\b|[<>])[^{}]*(?={))[^{}:]+?:State)", data): #TODO: Fix
+		raise Exceptions.OutOfStateException()
+	if re.search(r"(?<!:)\bState\b", data):
+		raise Exceptions.MissingStateNameException()
+	if re.search(r"((?<=[;}])|^(?!iseq=))[^;:}{]+?[;:}{][^}]*?:\bState\b", data):
+		raise Exceptions.InvalidStateNameException(re.search(r"(?<=[;}])[^;:}{]+?[;:}{][^}]*?:\bState\b", data))
 	return True
+
 
 # Makes sure all commands are written correctly. Does not check if command exists
 def CheckForCommandErrors(data: str) -> bool:
@@ -36,19 +57,6 @@ def CheckForCommandErrors(data: str) -> bool:
 	# halt
 	if re.search(r"\bhalt\b(?!;)", data):
 		raise Exceptions.MissingSemicolonException("halt")
-	# input sequence
-	if re.search(r"\biseq\b(?!=)", data):
-		raise Exceptions.MissingArgumentException("iseq")
-	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
-		raise Exceptions.IncorrectArgumentException("iseq")
-	if re.search(r"\biseq\b=([01B]+,)+(?![01B])", data):
-		raise Exceptions.NoAdditionalArgumentException()
-	if re.search(r"(\biseq\b.*){2,}", data):
-		raise Exceptions.RepeatedIseqException()
-	if re.search(r".+\biseq\b", data):
-		raise Exceptions.IncorrectIseqUsageException()
-	if re.search(r"(?>\biseq\b=[^;]+)(?!;)", data): # Requires python 3.11 (2022-05-07)
-		raise Exceptions.MissingSemicolonException("iseq")
 	return True
 
 
@@ -121,7 +129,7 @@ def StateParser(path: str) -> tuple:
 	iSeq = 'B'
 	with open(path,"r") as f:
 		codeText = "".join(f.read().split())
-		if CheckForStateErrors(codeText):
+		if CheckForParseErrors(codeText):
 			CheckForWarnings(codeText)
 			trySeq = re.search(r"\biseq\b=[01,]+;", codeText)
 			if trySeq:
@@ -135,6 +143,10 @@ def StateParser(path: str) -> tuple:
 					stateNames.append(parsedCode[i][:-1].split(':')[0])
 				else:
 					stateCommands.append(parsedCode[i])
+
+		repeatedNames = [x for x in stateNames if stateNames.count(x) > 1]
+		if len(repeatedNames) > 0:
+			raise Exceptions.RepeatedStateNameException(repeatedNames[0])
 
 	return iSeq, stateNames, stateCommands
 
