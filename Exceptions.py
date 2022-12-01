@@ -75,3 +75,23 @@ class EmptyFileException(CompileException):
 	def __init__(self, path):
 		self.message = f"File \"{path}\" is empty"
 		super().__init__(self.message)
+
+class OutOfStateException(CompileException):
+	def __init__(self):
+		self.message = f"Methods or statements cannot be used outside of states"
+		super().__init__(self.message)
+
+class MissingStateNameException(CompileException):
+	def __init__(self):
+		self.message = f"All states must have a name"
+		super().__init__(self.message)
+
+class InvalidStateNameException(CompileException):
+	def __init__(self, name):
+		self.message = f"The state name is invalid (\"{name}\")"
+		super().__init__(self.message)
+
+class RepeatedStateNameException(CompileException):
+	def __init__(self, name):
+		self.message = f"State with the name \"{name}\" is defined already"
+		super().__init__(self.message)

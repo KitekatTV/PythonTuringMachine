@@ -11,6 +11,72 @@ from Compiler import CommandLists
 from Compiler import CheckIfExists
 from Compiler import StateParser
 from Compiler import CheckForWarnings
+from Compiler import CheckForParseErrors
+
+# StateParser tests
+def test_parse_short():
+	assert StateParser("Tests/compile_full_short_correct.txt") == ('B', ['0'], ["write(0);>;halt;"])
+
+def test_parse_long():
+	assert StateParser("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], ['0'], ['if(!B){write(1);>;write(0);>;};if(1){>;>;>;write(B);halt;};halt;'])
+
+def test_parse_complex():
+	assert StateParser("Tests/compile_full_multistate_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], ["0", "1", "mystate"], ["if(!B){write(1);>;write(0);>;};tostate(1);", ">;>;write(B);tostate(mystate);", "<;halt;"])
+
+# CheckForParseErrors tests
+def test_iseq_no_argument():
+	with pytest.raises(Exceptions.MissingArgumentException):
+		CheckForParseErrors("iseq")
+
+def test_iseq_incorrect_argument():
+	with pytest.raises(Exceptions.IncorrectArgumentException):
+		CheckForParseErrors("iseq=2323A")
+
+def test_iseq_no_additional_argument():
+	with pytest.raises(Exceptions.NoAdditionalArgumentException):
+		CheckForParseErrors("iseq=101010,")
+
+def test_iseq_repeat():
+	with pytest.raises(Exceptions.RepeatedIseqException):
+		CheckForParseErrors("iseq=01010,010;iseq=111;")
+
+def test_iseq_incorrect_usage():
+	with pytest.raises(Exceptions.IncorrectIseqUsageException):
+		CheckForParseErrors(">;iseq=101;")
+
+def test_iseq_no_semicolon():
+	with pytest.raises(Exceptions.MissingSemicolonException):
+		CheckForParseErrors("iseq=01010,010")
+
+def test_iseq_correct():
+	assert CheckForParseErrors("iseq=1010;") == True
+
+def test_iseq_multisegment_correct():
+	assert CheckForParseErrors("iseq=1010,10101,10;") == True
+
+def test_command_before_state():
+	with pytest.raises(Exceptions.OutOfStateException):
+		CheckForParseErrors("write(1);mystate:State{}")
+
+def test_command_after_state():
+	with pytest.raises(Exceptions.OutOfStateException):
+		CheckForParseErrors("mystate:State{}write(1);")
+
+def test_command_between_states():
+	with pytest.raises(Exceptions.OutOfStateException):
+		CheckForParseErrors("mystate1:State{}write(1);mystate2:State{}")
+
+def test_missing_state_name():
+	with pytest.raises(Exceptions.MissingStateNameException):
+		CheckForParseErrors("mystate:State{>;}State{>;}")
+
+def test_invalid_state_name():
+	with pytest.raises(Exceptions.InvalidStateNameException):
+		CheckForParseErrors("mys:t{ate:State{}")
+
+def test_state_correct():
+	assert CheckForParseErrors("mystate:State{>;}") == True
+
 
 # CheckForCommandErrors tests
 def test_write_no_argument():
@@ -82,36 +148,6 @@ def test_halt_missing_semicolon():
 
 def test_halt_correct():
 	assert CheckForCommandErrors("halt;") == True
-
-def test_iseq_no_argument():
-	with pytest.raises(Exceptions.MissingArgumentException):
-		CheckForCommandErrors("iseq")
-
-def test_iseq_incorrect_argument():
-	with pytest.raises(Exceptions.IncorrectArgumentException):
-		CheckForCommandErrors("iseq=2323A")
-
-def test_iseq_no_additional_argument():
-	with pytest.raises(Exceptions.NoAdditionalArgumentException):
-		CheckForCommandErrors("iseq=101010,")
-
-def test_iseq_repeat():
-	with pytest.raises(Exceptions.RepeatedIseqException):
-		CheckForCommandErrors("iseq=01010,010;iseq=111;")
-
-def test_iseq_incorrect_usage():
-	with pytest.raises(Exceptions.IncorrectIseqUsageException):
-		CheckForCommandErrors(">;iseq=101;")
-
-def test_iseq_no_semicolon():
-	with pytest.raises(Exceptions.MissingSemicolonException):
-		CheckForCommandErrors("iseq=01010,010")
-
-def test_iseq_correct():
-	assert CheckForCommandErrors("iseq=1010;") == True
-
-def test_iseq_multisegment_correct():
-	assert CheckForCommandErrors("iseq=1010,10101,10;") == True
 
 
 # CheckForWarning tests
