@@ -133,7 +133,7 @@ def StateParser(path: str) -> tuple:
 				if(i % 2 == 0):
 					stateNames.append(parsedCode[i][:-1].split(':')[0])
 				else:
-					stateCommands.append(parsedCode[i][:-1])
+					stateCommands.append(parsedCode[i])
 
 	return iSeq, stateNames, stateCommands
 
