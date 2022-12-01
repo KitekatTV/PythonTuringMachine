@@ -3,7 +3,7 @@ import os.path
 from time import sleep
 
 from TerminalPainter import DrawTerminal
-from Compiler import CommandList
+from Compiler import CommandLists
 
 stepMode = False
 commandDelay = 1 # Delay between commands execution in run mode
@@ -13,12 +13,15 @@ selectedIndex = 0 # Index of nums array element thats is currently under the poi
 mainArray = ['B']
 startIndex = 0
 
+stateIndex = 0
+
 # Executes given command
 def Act(command: str) -> str:
 	global pointerPos
 	global selectedIndex
 	global mainArray
 	global startIndex
+	global stateIndex
 
 	if command[0] == 'W':
 		mainArray[selectedIndex] = str(command[1])
@@ -81,6 +84,10 @@ def Act(command: str) -> str:
 		else:
 			return "NoDelay"
 
+	elif command[0] == 'C':
+		stateIndex = int(command[1:])
+		return "ChangeState"
+
 	elif command[0] == 'H':
 		return "Halt"
 
@@ -92,31 +99,30 @@ def Run(commands: list):
 	global stepMode
 	global mainArray
 	global startIndex
-
-	if commands[0][0] == 'S':
-		commands[0] = commands[0][1:].replace(',','B')
-		mainArray = list(commands[0])
-		commands.pop(0)
+	global stateIndex
 
 	DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
 
 	if not stepMode:
 		sleep(1)
 
-	for c in commands:
-		status = Act(c)
-		if status == "Halt":
-			DrawTerminal(mainArray, startIndex, pointerPos, False, True)
-			break
+	status = "Begin"
+	
+	while status != "Halt":
+		for c in commands[stateIndex]:
+			status = Act(c)
+			if status == "Halt":
+				DrawTerminal(mainArray, startIndex, pointerPos, False, True)
+				break
 
-		elif status == "OK":
-			DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+			elif status == "ChangeState":
+				break
 
-		if status != "NoDelay" and not stepMode:
-			sleep(commandDelay)
-	else:
-		while True:
-			DrawTerminal(mainArray, startIndex, pointerPos,stepMode)
+			elif status == "OK":
+				DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+
+			if status != "NoDelay" and not stepMode:
+				sleep(commandDelay)
 
 
 # Parses terminal arguments
@@ -133,6 +139,7 @@ def ParseArguments():
 def Entry():
 	global stepMode
 	global commandDelay
+	global mainArray
 
 	args = ParseArguments()
 	path = args.path
@@ -147,11 +154,12 @@ def Entry():
 		print(f"ERR: No such file - {path}")
 		return
 
-	commands = CommandList(path)
+	iSeq, commandLists = CommandLists(path)
 
-	if commands is not None:
+	if commandLists is not None:
 		input("STATUS: Compilation successful. Press \"Enter\" to begin program execution\n")
-		Run(commands)
+		mainArray = iSeq
+		Run(commandLists)
 
 
 if __name__ == "__main__":

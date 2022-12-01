@@ -2,8 +2,12 @@ import re
 import warnings
 import Exceptions
 
+# TODO: Makes sure all commands are written correctly.
+def CheckForStateErrors(data: str) -> bool:
+	return True
+
 # Makes sure all commands are written correctly. Does not check if command exists
-def CheckForErrors(data: str) -> bool:
+def CheckForCommandErrors(data: str) -> bool:
 	# write
 	if re.search(r"\bwrite\b[^(]", data):
 		raise Exceptions.MissingArgumentException("write")
@@ -69,11 +73,13 @@ def CheckIfExists(command: str) -> bool:
 		return True
 	if re.match(r"\biseq\b=", command):
 		return True
+	if re.match(r"\btostate\b\(.+?\)", command):
+		return True
 	return False
 
 
-# "Compiles" (converts) text to commands that are easier to use later
-def CompileCommand(c: str) -> str:
+# Compiles text to commands that are easier to use later
+def CompileCommand(c: str, stateNames: list) -> str:
 	# write()
 	if re.match(r"write\(.\)$", c):
 		return f"W{c[c.find('(') + 1:len(c) - 1]}."
@@ -95,42 +101,72 @@ def CompileCommand(c: str) -> str:
 		if c[3] == '!':
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[7:-1])[1::2]:
-				output += CompileCommand(s)
+				output += CompileCommand(s, stateNames)
 			return f"N{c[4]}:{output[0:-1]}:."
 		else:
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[6:-1])[1::2]:
-				output += CompileCommand(s)
+				output += CompileCommand(s, stateNames)
 			return f"I{c[3]}:{output[0:-1]}:."
 
-	# input sequence
-	elif c.startswith("iseq="): 
-		return f"S{c[5:]}."
+	# Change state
+	elif re.match(r"\btostate\b\(.+?\)", c):
+		return f"C{stateNames.index(c[8:-1])}."
+
+
+# Parses text to two lists: one contains states' names, the other one commands in these states
+def StateParser(path: str) -> tuple:
+	stateNames = []
+	stateCommands = []
+	iSeq = 'B'
+	with open(path,"r") as f:
+		codeText = "".join(f.read().split())
+		if CheckForStateErrors(codeText):
+			trySeq = re.search(r"\biseq\b=[01,]+;", codeText)
+			if trySeq:
+				seq = trySeq.group(0)[5:-1]
+				iSeq = list(seq.replace(',', 'B'))
+				codeText = codeText[len(seq) + 6:]
+			parsedCode = re.compile(r"((?:[^{]|{[^{]*})+)}").split(codeText)
+			
+			for i in range(0,len(parsedCode) - 1):
+				if(i % 2 == 0):
+					stateNames.append(parsedCode[i][:-1].split(':')[0])
+				else:
+					stateCommands.append(parsedCode[i][:-1])
+
+	return iSeq, stateNames, stateCommands
 
 
 # Compiler
-def Compile(path: str) -> str:
-	with open(path,"r") as f:
-		inputdata = "".join(f.read().split())
-		if CheckForErrors(inputdata):
-			CheckForWarnings(inputdata)
-			commands = re.compile(r"((?:[^;{]|{[^}]*})+)").split(inputdata)[1::2]
+def Compile(path: str) -> list:
+	iSeq, stateNames, stateCommands = StateParser(path)
+	commandStrings = []
+	for i in range(len(stateCommands)):
+		if CheckForCommandErrors(stateCommands[i]):
+			CheckForWarnings(stateCommands[i])
+			commands = re.compile(r"((?:[^;{]|{[^}]*})+)").split(stateCommands[i])[1::2]
 			output = ""
 			for c in commands:
 				if not CheckIfExists(c):
 					raise Exceptions.UnknownCommandException(c)
 				else:
-					output += CompileCommand(c)
-			return output
+					output += CompileCommand(c, stateNames)
+			commandStrings.append(output)
+
+	return iSeq, commandStrings
 
 
-# Parses compiled program to command list
-def CommandList(path: str) -> list:
-	program = Compile(path)
-	if program == "":
+# Parses compiled strings program to command lists
+def CommandLists(path: str) -> list:
+	iSeq, commandStrings = Compile(path)
+	if commandStrings == "":
 		raise Exceptions.EmptyFileException(path)
-	elif not program:
+	elif not commandStrings:
 		raise Exceptions.CompileException("Unknown error")
 
-	commands = re.compile(r"((?:[^.:]|:[^:]*:)+)").split(program)[1::2]
-	return commands
+	commandLists = []
+	for commands in commandStrings:
+		commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
+	
+	return iSeq, commandLists
