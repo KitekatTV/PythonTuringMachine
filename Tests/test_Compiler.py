@@ -195,19 +195,19 @@ def test_if_statement_long_compile():
 
 # Compile tests
 def test_compile_full_short_correct():
-	assert Compile("Tests/compile_full_short_correct.txt") == [], "W0.R.H."
+	assert Compile("Tests/compile_full_short_correct.txt") == ('B', ["W0.R.H."])
 
 def test_compile_full_incorrect():
 	with pytest.raises(Exceptions.CompileException):
 		Compile("Tests/compile_full_short_incorrect.txt")
 
 def test_compile_full_long_correct():
-	assert Compile("Tests/compile_full_long_correct.txt") == ['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '0'], "NB:W1.R.W0.R:.I1:R.R.R.WB.H:.H."
+	assert Compile("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], ["NB:W1.R.W0.R:.I1:R.R.R.WB.H:.H."])
 
 
 # CommandLists tests
 def test_command_list_short_correct():
-	assert CommandLists("Tests/compile_full_short_correct.txt") == [], ['W0', 'R', 'H']
+	assert CommandLists("Tests/compile_full_short_correct.txt") == ('B', [['W0', 'R', 'H']])
 
 def test_command_list_incorrect():
 	with pytest.raises(Exceptions.CompileException):
@@ -218,4 +218,4 @@ def test_command_list_empty():
 		CommandLists("Tests/compile_full_empty_file.txt")
 
 def test_command_list_long_correct():
-	assert CommandLists("Tests/compile_full_long_correct.txt") == ['S0010101,100101,10101,100', 'NB:W1.R.W0.R:', 'I1:R.R.R.WB.H:', 'H']
+	assert CommandLists("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], [['NB:W1.R.W0.R:', 'I1:R.R.R.WB.H:', 'H']])
