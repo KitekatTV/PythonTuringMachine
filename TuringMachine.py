@@ -29,14 +29,16 @@ def Act(command: str) -> str:
 	elif command[0] == 'R':
 		selectedIndex += 1
 
+		if pointerPos == 19:
+			startIndex += 1
+
 		if pointerPos < 19:
 			pointerPos += 1
 
-		if pointerPos == 19:
-			startIndex += 1	
-
-		if selectedIndex == len(mainArray) - 1:
-			mainArray.append('B')	
+		if selectedIndex == len(mainArray):
+			if type(mainArray) is str:
+				mainArray = list(mainArray)
+			mainArray.append('B')
 
 	elif command[0] == 'L':
 		if selectedIndex == 0:
