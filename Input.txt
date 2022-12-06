@@ -1,1 +1,20 @@
-<;;
+iSeq = 0101,11;
+
+0 : State {
+    write(1);
+    >;
+    if(!1) {
+        tostate(1);
+    };
+}
+
+1 : State {
+    >;
+    if(B) {
+        tostate(mystate);
+    };
+}
+
+mystate : State {
+    halt;
+}
