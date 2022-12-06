@@ -170,15 +170,30 @@ def Compile(path: str) -> list:
 
 
 # Parses compiled strings program to command lists
-def CommandLists(path: str) -> list:
-	iSeq, commandStrings = Compile(path)
-	if commandStrings == "":
-		raise Exceptions.EmptyFileException(path)
-	elif not commandStrings:
-		raise Exceptions.CompileException("Unknown error")
+def CommandLists(path: str, raw: str) -> list:
+	if not raw:
+		iSeq, commandStrings = Compile(path)
+		if commandStrings == "":
+			raise Exceptions.EmptyFileException(path)
+		elif not commandStrings:
+			raise Exceptions.CompileException("Unknown error")
 
-	commandLists = []
-	for commands in commandStrings:
-		commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
-	
-	return iSeq, commandLists
+		commandLists = []
+		for commands in commandStrings:
+			commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
+
+		return iSeq, commandLists
+	else:
+		iSeq = 'B'
+		hasIseq = raw.startswith('S')
+		commandLists = []
+		if hasIseq:
+			inputWithIseq = raw.split('/')
+			iSeq = list(inputWithIseq[0][1:])
+			inputStrings = inputWithIseq[1:]
+		else:
+			inputStrings = raw.split('/')
+		for commands in inputStrings:
+			commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
+				
+		return iSeq, commandLists

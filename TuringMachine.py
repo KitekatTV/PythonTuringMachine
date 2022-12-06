@@ -131,6 +131,7 @@ def ParseArguments():
 	parser.add_argument('path', type=str, help='Path to program')
 	parser.add_argument('-s', '--step', action='store_true', help='Enables step-by-step mode')
 	parser.add_argument('-d', '--delay', type=int, help='Sets delay between steps in seconds. Does nothing in step-by-step mode')
+	parser.add_argument('-r', '--raw', type=str, help='Raw input')
 	Args = parser.parse_args()
 	return Args
 
@@ -154,7 +155,7 @@ def Entry():
 		print(f"ERR: No such file - {path}")
 		return
 
-	iSeq, commandLists = CommandLists(path)
+	iSeq, commandLists = CommandLists(path, args.raw)
 
 	if commandLists is not None:
 		input("STATUS: Compilation successful. Press \"Enter\" to begin program execution\n")
