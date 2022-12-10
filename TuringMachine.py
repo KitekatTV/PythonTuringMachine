@@ -23,6 +23,9 @@ def Act(command: str) -> str:
 	global startIndex
 	global stateIndex
 
+	if type(mainArray) is str:
+		mainArray = list(mainArray)
+
 	if command[0] == 'W':
 		mainArray[selectedIndex] = str(command[1])
 
@@ -36,8 +39,6 @@ def Act(command: str) -> str:
 			pointerPos += 1
 
 		if selectedIndex == len(mainArray):
-			if type(mainArray) is str:
-				mainArray = list(mainArray)
 			mainArray.append('B')
 
 	elif command[0] == 'L':
