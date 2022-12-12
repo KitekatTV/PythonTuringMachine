@@ -1,16 +1,16 @@
 ﻿import curses # library for console drawing
-import math
+#TODELETEimport math
 
-BarTemplate = [' _________________________________________________________________________________________ ',\
-			   '|    \                                                                               /    |',\
-			   '|_____\.___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___./_____|',\
-			   '|START |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |  END |',\
-			   '|‾‾‾‾‾/˙‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾˙\‾‾‾‾‾|',\
-			   '|    /                                                                               \    |',\
-			   ' ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ ']
+BarTemplate = [r' _________________________________________________________________________________________ ',\
+			   r'|    \                                                                               /    |',\
+			   r'|_____\.___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___ ___./_____|',\
+			   r'|  >  ||   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   ||  <  |',\
+			   r'|‾‾‾‾‾/˙‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾˙\‾‾‾‾‾|',\
+			   r'|    /                                                                               \    |',\
+			   r' ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ ']
 
-PointerTemplate = ['\ /',\
-				   '_V_']
+PointerTemplate = [r'\ /',\
+				   r'_V_']
 
 stepNumber = 0
 	
@@ -44,19 +44,19 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 		for i in range(startIndex,startIndex + 19):
 			window.addch(3, 9 + (4 * (i - startIndex)), str(numsToPrint[i]))
 
-	if startIndex == 0:
-		window.addstr(3, 1, "START")
-	elif startIndex > 9999:
-		window.addstr(3, 1, "9999+")
-	else:
-		window.addstr(3, 1, (str(startIndex) + '.' * (5 - int(math.log10(startIndex) + 1))))
+	#TODELETEif startIndex == 0:
+	#TODELETE	window.addstr(3, 1, "  >  ")
+	#TODELETEelif startIndex > 9999:
+	#TODELETE	window.addstr(3, 1, "9999+")
+	#TODELETEelse:
+	#TODELETE	window.addstr(3, 1, (str(startIndex) + '.' * (5 - int(math.log10(startIndex) + 1))))
 
-	if startIndex + 19 >= len(numsToPrint):
-		window.addstr(3, 85, " END ")
-	elif len(numsToPrint) - startIndex - 19 > 9999:
-		window.addstr(3, 85, "9999+")
-	else:
-		window.addstr(3, 85, '.' * (5 - int(math.log10(len(numsToPrint) - startIndex - 19) + 1)) + str(len(numsToPrint) - startIndex - 19))
+	#TODELETEif startIndex + 19 >= len(numsToPrint):
+	#TODELETE	window.addstr(3, 85, " END ")
+	#TODELETEelif len(numsToPrint) - startIndex - 19 > 9999:
+	#TODELETE	window.addstr(3, 85, "  <  ")
+	#TODELETEelse:
+	#TODELETE	window.addstr(3, 85, '.' * (5 - int(math.log10(len(numsToPrint) - startIndex - 19) + 1)) + str(len(numsToPrint) - startIndex - 19))
 
 	# Draw the pointer
 	window.addstr(1, 8 + (4 * (pointerPos - 1)), PointerTemplate[0])

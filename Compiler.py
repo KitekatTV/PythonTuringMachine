@@ -110,12 +110,20 @@ def CompileCommand(c: str, stateNames: list) -> str:
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[7:-1])[1::2]:
 				output += CompileCommand(s, stateNames)
-			return f"N{c[4]}:{output[0:-1]}:."
+			if c[4] == 'B':
+				k = ' '
+			else:
+				k = c[4]
+			return f"N{k}:{output[0:-1]}:."
 		else:
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[6:-1])[1::2]:
 				output += CompileCommand(s, stateNames)
-			return f"I{c[3]}:{output[0:-1]}:."
+			if c[3] == 'B':
+				k = ' '
+			else:
+				k = c[3]
+			return f"I{k}:{output[0:-1]}:."
 
 	# Change state
 	elif re.match(r"\btostate\b\(.+?\)", c):
@@ -126,7 +134,7 @@ def CompileCommand(c: str, stateNames: list) -> str:
 def StateParser(path: str) -> tuple:
 	stateNames = []
 	stateCommands = []
-	iSeq = 'B'
+	iSeq = '0'
 	with open(path,"r") as f:
 		codeText = "".join(f.read().split())
 		if CheckForParseErrors(codeText):
@@ -184,7 +192,7 @@ def CommandLists(path: str, raw: str) -> list:
 
 		return iSeq, commandLists
 	else:
-		iSeq = 'B'
+		iSeq = '0'
 		hasIseq = raw.startswith('S')
 		commandLists = []
 		if hasIseq:

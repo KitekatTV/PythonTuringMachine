@@ -7,10 +7,10 @@ from Compiler import CommandLists
 
 stepMode = False
 commandDelay = 1 # Delay between commands execution in run mode
-pointerPos = 1 # Position of segment below poiter (1-19)
-selectedIndex = 0 # Index of nums array element thats is currently under the pointer
+pointerPos = 10 # Position of segment below poiter (1-19)
+selectedIndex = 9 # Index of nums array element thats is currently under the pointer
 
-mainArray = ['B']
+mainArray = []
 startIndex = 0
 
 stateIndex = 0
@@ -39,19 +39,20 @@ def Act(command: str) -> str:
 			pointerPos += 1
 
 		if selectedIndex == len(mainArray):
-			mainArray.append('B')
+			mainArray.append(' ')
 
 	elif command[0] == 'L':
-		if selectedIndex == 0:
-			return "Halt"
-		else:
-			selectedIndex -= 1
+		selectedIndex -= 1
 
-			if pointerPos > 1:
-				pointerPos -= 1
+		if pointerPos == 1 and startIndex != 0:
+			startIndex -= 1
 
-			if pointerPos == 1:
-				startIndex -= 1
+		if pointerPos > 1:
+			pointerPos -= 1
+
+		if selectedIndex == -1:
+			mainArray.insert(0, ' ')
+			selectedIndex = 0
 
 	elif command[0] == 'I':
 		if command[1] == mainArray[selectedIndex]:
@@ -162,7 +163,9 @@ def Entry():
 
 	if commandLists is not None:
 		input("STATUS: Compilation successful. Press \"Enter\" to begin program execution\n")
-		mainArray = iSeq
+		if type(iSeq) is str:
+			iSeq = list(iSeq)
+		mainArray = [' '] * 9 + iSeq
 		Run(commandLists)
 
 
