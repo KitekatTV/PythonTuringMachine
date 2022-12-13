@@ -34,7 +34,10 @@ def Act(command: str) -> str:
 
 	if command[0] == 'W':
 		pointat += 1
-		mainArray[selectedIndex] = str(command[1])
+		c = str(command[1])
+		if command[1] == 'B':
+			c = ' '
+		mainArray[selectedIndex] = c
 
 	elif command[0] == 'R':
 		pointat += 1
@@ -65,7 +68,7 @@ def Act(command: str) -> str:
 
 	elif command[0] == 'I':
 		pointat += 1
-		if command[1] == mainArray[selectedIndex]:
+		if command[1] == mainArray[selectedIndex] or (command[1] == 'B' and mainArray[selectedIndex] == ' '):
 			addcommands = command[3:-1].split('.')
 
 			for a in range(len(addcommands)):
@@ -85,7 +88,7 @@ def Act(command: str) -> str:
 
 	elif command[0] == 'N':
 		pointat += 1
-		if command[1] != mainArray[selectedIndex]:
+		if command[1] != mainArray[selectedIndex] or (command[1] == 'B' and mainArray[selectedIndex] != ' '):
 			addcommands = command[3:-1].split('.')
 
 			for a in range(len(addcommands)):

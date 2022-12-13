@@ -111,20 +111,12 @@ def CompileCommand(c: str, stateNames: list) -> str:
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[7:-1])[1::2]:
 				output += CompileCommand(s, stateNames)
-			if c[4] == 'B':
-				k = ' '
-			else:
-				k = c[4]
-			return f"N{k}:{output[0:-1]}:."
+			return f"N{c[4]}:{output[0:-1]}:."
 		else:
 			output = ""
 			for s in re.compile(r"((?:[^;])+)").split(c[6:-1])[1::2]:
 				output += CompileCommand(s, stateNames)
-			if c[3] == 'B':
-				k = ' '
-			else:
-				k = c[3]
-			return f"I{k}:{output[0:-1]}:."
+			return f"I{c[3]}:{output[0:-1]}:."
 
 	# Change state
 	elif re.match(r"\btostate\b\(.+?\)", c):
@@ -143,7 +135,7 @@ def StateParser(path: str) -> tuple:
 			trySeq = re.search(r"\biseq\b=[01,]+;", codeText)
 			if trySeq:
 				seq = trySeq.group(0)[5:-1]
-				iSeq = list(seq.replace(',', 'B'))
+				iSeq = list(seq.replace(',', ' '))
 				codeText = codeText[len(seq) + 6:]
 			parsedCode = re.compile(r"((?:[^{]|{[^{]*})+)}").split(codeText)
 			
