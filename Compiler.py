@@ -22,7 +22,7 @@ def HasParseErrors(data: str) -> bool:
 		raise Exceptions.MissingStateNameException()
 	if re.search(r"((?<=[;}])|^(?!iseq=)[^;]+;)[^;:}{]+?[;:}{][^}]*?:\bState\b", data):
 		raise Exceptions.InvalidStateNameException(re.search(r"(?<=[;}])[^;:}{]+?[;:}{][^}]*?:\bState\b", data))
-	return True
+	return False
 
 
 def HasCommandErrors(data: str) -> bool:
