@@ -1,4 +1,4 @@
-iSeq = 0101,11;
+iseq = 0101,11;
 
 0 : State {
     write(1);
