@@ -80,6 +80,7 @@ def Act(command: str) -> str:
 					sleep(commandDelay)
 			pointat += 1
 		else:
+			pointat += command.count('.') + 2
 			return "NoDelay"
 
 	elif command[0] == 'N':
@@ -99,10 +100,10 @@ def Act(command: str) -> str:
 					sleep(commandDelay)
 			pointat += 1
 		else:
+			pointat += command.count('.') + 2
 			return "NoDelay"
 
 	elif command[0] == 'C':
-		pointat += 1
 		stateIndex = int(command[1:])
 		return "ChangeState"
 

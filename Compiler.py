@@ -203,8 +203,6 @@ def CommandLists(path: str, raw: str, backtrack: bool) -> list:
 
 		backtrackedProgram = ""
 		nums = []
-		if backtrack:
-			backtrackedProgram, nums = Backtrack.BacktrackFull('/'.join(commandStrings))
 
 		commandLists = []
 		if hasIseq:
@@ -215,5 +213,7 @@ def CommandLists(path: str, raw: str, backtrack: bool) -> list:
 			inputStrings = raw.split('/')
 		for commands in inputStrings:
 			commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
-				
+		if backtrack:
+			backtrackedProgram, nums = Backtrack.BacktrackFull("/".join(inputStrings))
+			
 		return iSeq, commandLists, backtrackedProgram, nums

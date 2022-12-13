@@ -13,6 +13,7 @@ PointerTemplate = [r'\ /',\
 				   r'_V_']
 
 stepNumber = 0
+done = False
 	
 # Handles everything related to drawing the in terminal
 def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt: bool, bt: str, point: int):
@@ -21,6 +22,25 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 	curses.noecho()
 	curses.cbreak()
 	window.keypad(True)
+
+	# Draw backtracked program (if exists)
+	global done
+	if bt != "" and not done:
+		done = True
+		lines = bt.split('\n')
+		window.addstr(8, 1, '_' * 89)
+		window.addstr(9 + len(lines), 1, '‾' * 89)
+		for i in range(len(lines)):
+			window.addstr(9 + i, 0, '|')
+			window.addstr(9 + i, 90, '|')
+		for l in range(len(lines)):
+			window.addstr(9 + l, 5, lines[l])
+	
+	for i in range(len(bt.split('\n'))):
+		window.addstr(9 + i, 0, '|  | ')
+
+	if point != -1:
+		window.addstr(9 + point, 1, '->')
 
 	# Exits curses
 	if halt:
@@ -35,16 +55,6 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 	# Draws the bar template
 	for i in range(len(BarTemplate)):
 		window.addstr(i, 0, BarTemplate[i])
-
-    # Draw backtracked program (if exists)
-	if bt != "":
-		print(bt, point)
-		lines = bt.split('\n')
-		for l in range(len(lines)):
-			window.addstr(9 + l, 1, lines[i])
-
-	if point != -1:
-		window.addstr(9 + point, 0, '>')
 
 	# Adds numbers to cells
 	if len(numsToPrint) < 20:
@@ -78,7 +88,11 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 	# Step-by-step mode
 	if stepMode:
 		global stepNumber
-		window.addstr(7, 0, f"STATUS: Step-by-step mode is active [Step {stepNumber}]. Press any key to move to the next step...")
+		if stepNumber == 0:
+			s = "Entry"
+		else:
+			s = f"Step {stepNumber}"
+		window.addstr(7, 0, f"STATUS: Step-by-step mode is active [{s}]. Press any key to move to the next step...")
 		stepNumber += 1
 		window.getch()
 	
