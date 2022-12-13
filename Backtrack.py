@@ -5,9 +5,9 @@ def BacktrackFull(IP: str) -> tuple:
         return "", []
 
     states = IP.split('/')
-    result = ""
+    result = "<Entry point>\n\n"
     nums = []
-    c = 0
+    c = 2
 
     for i in range(len(states)):
         nums.append(c)
