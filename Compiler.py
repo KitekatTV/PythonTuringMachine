@@ -1,6 +1,7 @@
 import re
 import warnings
 import Exceptions
+import Backtrack
 
 # Makes sure states in input sequence are defined correctly. Executed before CheckForCommandErrors()
 def CheckForParseErrors(data: str) -> bool:
@@ -178,7 +179,7 @@ def Compile(path: str) -> list:
 
 
 # Parses compiled strings program to command lists
-def CommandLists(path: str, raw: str) -> list:
+def CommandLists(path: str, raw: str, backtrack: bool) -> list:
 	if not raw:
 		iSeq, commandStrings = Compile(path)
 		if commandStrings == "":
@@ -186,14 +187,25 @@ def CommandLists(path: str, raw: str) -> list:
 		elif not commandStrings:
 			raise Exceptions.CompileException("Unknown error")
 
+		backtrackedProgram = ""
+		nums = []
+		if backtrack:
+			backtrackedProgram, nums = Backtrack.BacktrackFull('/'.join(commandStrings))
+
 		commandLists = []
 		for commands in commandStrings:
 			commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
 
-		return iSeq, commandLists
+		return iSeq, commandLists, backtrackedProgram, nums
 	else:
 		iSeq = '0'
 		hasIseq = raw.startswith('S')
+
+		backtrackedProgram = ""
+		nums = []
+		if backtrack:
+			backtrackedProgram, nums = Backtrack.BacktrackFull('/'.join(commandStrings))
+
 		commandLists = []
 		if hasIseq:
 			inputWithIseq = raw.split('/')
@@ -204,4 +216,4 @@ def CommandLists(path: str, raw: str) -> list:
 		for commands in inputStrings:
 			commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
 				
-		return iSeq, commandLists
+		return iSeq, commandLists, backtrackedProgram, nums
