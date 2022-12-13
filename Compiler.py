@@ -1,11 +1,9 @@
 import re
 import warnings
 import Exceptions
-import Backtrack
+from Backtrack import BacktrackFull
 
-# Makes sure states in input sequence are defined correctly. Executed before CheckForCommandErrors()
-def CheckForParseErrors(data: str) -> bool:
-	# input sequence
+def HasParseErrors(data: str) -> bool:
 	if re.search(r"\biseq\b(?!=)", data):
 		raise Exceptions.MissingArgumentException("iseq")
 	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
@@ -16,10 +14,9 @@ def CheckForParseErrors(data: str) -> bool:
 		raise Exceptions.RepeatedIseqException()
 	if re.search(r".+\biseq\b", data):
 		raise Exceptions.IncorrectIseqUsageException()
-	if re.search(r"(?>\biseq\b=[^;]+)(?!;)", data): # Requires python 3.11 (2022-05-07)
+	if re.search(r"(?>\biseq\b=[^;]+)(?!;)", data):
 		raise Exceptions.MissingSemicolonException("iseq")
-	# states
-	if re.search(r"(^(?<!{)[^{]*(\b(write|halt|if|tostate)\b|[<>])|(?<=})(\b(write|halt|if|tostate)\b|[<>])[^}]*$|(?=[^{}]*(\b(write|halt|if|tostate)\b|[<>])[^{}]*(?={))[^{}:]+?:State)", data): #TODO: Fix
+	if re.search(r"(^(?<!{)[^{]*(\b(write|halt|if|tostate)\b|[<>])|(?<=})(\b(write|halt|if|tostate)\b|[<>])[^}]*$|(?=[^{}]*(\b(write|halt|if|tostate)\b|[<>])[^{}]*(?={))[^{}:]+?:State)", data):
 		raise Exceptions.OutOfStateException()
 	if re.search(r"(?<!:)\bState\b", data):
 		raise Exceptions.MissingStateNameException()
@@ -28,9 +25,7 @@ def CheckForParseErrors(data: str) -> bool:
 	return True
 
 
-# Makes sure all commands are written correctly. Does not check if command exists
-def CheckForCommandErrors(data: str) -> bool:
-	# write
+def HasCommandErrors(data: str) -> bool:
 	if re.search(r"\bwrite\b[^(]", data):
 		raise Exceptions.MissingArgumentException("write")
 	if re.search(r"\bwrite\b\([^01B]", data):
@@ -39,10 +34,8 @@ def CheckForCommandErrors(data: str) -> bool:
 		raise Exceptions.NotClosedParenthesesException("write")
 	if re.search(r"\bwrite\b\(.\)(?!;)", data):
 		raise Exceptions.MissingSemicolonException("write")
-	# move pointer
 	if re.search(r"[><](?!;)", data):
 		raise Exceptions.MissingSemicolonException("Move pointer command (\"<\" or  \">\")")
-	# if
 	if re.search(r"\bif\b(?!\()", data):
 		raise Exceptions.MissingArgumentException("if")
 	if re.search(r"\bif\b\(([^01B]{2}|[01B]!)", data):
@@ -55,21 +48,12 @@ def CheckForCommandErrors(data: str) -> bool:
 		raise Exceptions.EmptyStatementBodyException("if")
 	if re.search(r"\bif\b\(.{1,2}\){.*?}(?!;)", data):
 		raise Exceptions.MissingSemicolonException("if")
-	# halt
 	if re.search(r"\bhalt\b(?!;)", data):
 		raise Exceptions.MissingSemicolonException("halt")
 	return True
 
 
-def CheckForWarnings(data: str):
-	if ";;" in data:
-		warnings.warn(Exceptions.UnnecessarySemicolonWarning())
-	if not "halt" in data:
-		warnings.warn(Exceptions.NoExitFunctionWarning())
-
-
-# Check if given command exists
-def CheckIfExists(command: str) -> bool:
+def CommandExists(command: str) -> bool:
 	if re.match(r"\bwrite\b\(.\)", command):
 		return True
 	if re.match(r">$", command):
@@ -87,56 +71,51 @@ def CheckIfExists(command: str) -> bool:
 	return False
 
 
-# Compiles text to commands that are easier to use later
-def CompileCommand(c: str, stateNames: list) -> str:
-	# write()
-	if re.match(r"write\(.\)$", c):
-		return f"W{c[c.find('(') + 1:len(c) - 1]}."
+def CheckForWarnings(data: str):
+	if ";;" in data:
+		warnings.warn(Exceptions.UnnecessarySemicolonWarning())
+	if not "halt" in data:
+		warnings.warn(Exceptions.NoExitFunctionWarning())
 
-	# Move right
-	elif c == ">":
+
+def CompileCommand(command: str, stateNames: list) -> str:
+	if re.match(r"write\(.\)$", command):
+		return f"W{command[6]}."
+	if command == ">":
 		return "R."
-
-	# Move left
-	elif c == "<":
+	if command == "<":
 		return "L."
-
-	# End program
-	elif c == "halt":
+	if command == "halt":
 		return "H."
-
-	# if statement
-	elif c.startswith("if"):
-		if c[3] == '!':
+	if command.startswith("if"):
+		if command[3] == '!':
 			output = ""
-			for s in re.compile(r"((?:[^;])+)").split(c[7:-1])[1::2]:
-				output += CompileCommand(s, stateNames)
-			return f"N{c[4]}:{output[0:-1]}:."
+			for subcommand in re.compile(r"((?:[^;])+)").split(command[7:-1])[1::2]:
+				output += CompileCommand(subcommand, stateNames)
+			return f"N{command[4]}:{output[0:-1]}:."
 		else:
 			output = ""
-			for s in re.compile(r"((?:[^;])+)").split(c[6:-1])[1::2]:
-				output += CompileCommand(s, stateNames)
-			return f"I{c[3]}:{output[0:-1]}:."
+			for subcommand in re.compile(r"((?:[^;])+)").split(command[6:-1])[1::2]:
+				output += CompileCommand(subcommand, stateNames)
+			return f"I{command[3]}:{output[0:-1]}:."
+	if re.match(r"\btostate\b\(.+?\)", command):
+		return f"C{stateNames.index(command[8:-1])}."
+	return ""
 
-	# Change state
-	elif re.match(r"\btostate\b\(.+?\)", c):
-		return f"C{stateNames.index(c[8:-1])}."
 
-
-# Parses text to two lists: one contains states' names, the other one commands in these states
 def StateParser(path: str) -> tuple:
 	stateNames = []
 	stateCommands = []
-	iSeq = '0'
+	inputSequence = '0'
 	with open(path,"r") as f:
 		codeText = "".join(f.read().split())
-		if CheckForParseErrors(codeText):
+		if not HasParseErrors(codeText):
 			CheckForWarnings(codeText)
-			trySeq = re.search(r"\biseq\b=[01,]+;", codeText)
-			if trySeq:
-				seq = trySeq.group(0)[5:-1]
-				iSeq = list(seq.replace(',', ' '))
-				codeText = codeText[len(seq) + 6:]
+			anyInputSequence = re.search(r"\biseq\b=[01,]+;", codeText)
+			if anyInputSequence:
+				temp = anyInputSequence.group(0)[5:-1]
+				inputSequence = list(temp.replace(',', ' '))
+				codeText = codeText[len(temp) + 6:]
 			parsedCode = re.compile(r"((?:[^{]|{[^{]*})+)}").split(codeText)
 			
 			for i in range(0,len(parsedCode) - 1):
@@ -149,31 +128,29 @@ def StateParser(path: str) -> tuple:
 		if len(repeatedNames) > 0:
 			raise Exceptions.RepeatedStateNameException(repeatedNames[0])
 
-	return iSeq, stateNames, stateCommands
+	return inputSequence, stateNames, stateCommands
 
 
-# Compiler
-def Compile(path: str) -> list:
-	iSeq, stateNames, stateCommands = StateParser(path)
+def Compile(path: str) -> tuple:
+	inputSequence, stateNames, stateCommands = StateParser(path)
 	commandStrings = []
 	for i in range(len(stateCommands)):
-		if CheckForCommandErrors(stateCommands[i]):
+		if HasCommandErrors(stateCommands[i]):
 			commands = re.compile(r"((?:[^;{]|{[^}]*})+)").split(stateCommands[i])[1::2]
 			output = ""
 			for c in commands:
-				if not CheckIfExists(c):
+				if not CommandExists(c):
 					raise Exceptions.UnknownCommandException(c)
 				else:
 					output += CompileCommand(c, stateNames)
 			commandStrings.append(output)
 
-	return iSeq, commandStrings
+	return inputSequence, commandStrings
 
 
-# Parses compiled strings program to command lists
-def CommandLists(path: str, raw: str, backtrack: bool) -> list:
+def CommandLists(path: str, raw: str, backtrack: bool) -> tuple:
 	if not raw:
-		iSeq, commandStrings = Compile(path)
+		inputSequence, commandStrings = Compile(path)
 		if commandStrings == "":
 			raise Exceptions.EmptyFileException(path)
 		elif not commandStrings:
@@ -182,30 +159,30 @@ def CommandLists(path: str, raw: str, backtrack: bool) -> list:
 		backtrackedProgram = ""
 		nums = []
 		if backtrack:
-			backtrackedProgram, nums = Backtrack.BacktrackFull('/'.join(commandStrings))
+			backtrackedProgram, nums = BacktrackFull('/'.join(commandStrings))
 
 		commandLists = []
 		for commands in commandStrings:
 			commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
 
-		return iSeq, commandLists, backtrackedProgram, nums
+		return inputSequence, commandLists, backtrackedProgram, nums
 	else:
-		iSeq = '0'
-		hasIseq = raw.startswith('S')
+		inputSequence = '0'
+		hasInputSequence = raw.startswith('S')
 
 		backtrackedProgram = ""
 		nums = []
 
 		commandLists = []
-		if hasIseq:
+		if hasInputSequence:
 			inputWithIseq = raw.split('/')
-			iSeq = list(inputWithIseq[0][1:])
+			inputSequence = list(inputWithIseq[0][1:])
 			inputStrings = inputWithIseq[1:]
 		else:
 			inputStrings = raw.split('/')
 		for commands in inputStrings:
 			commandLists.append(re.compile(r"((?:[^.:]|:[^:]*:)+)").split(commands)[1::2])
 		if backtrack:
-			backtrackedProgram, nums = Backtrack.BacktrackFull("/".join(inputStrings))
-			
-		return iSeq, commandLists, backtrackedProgram, nums
+			backtrackedProgram, nums = BacktrackFull("/".join(inputStrings))
+
+		return inputSequence, commandLists, backtrackedProgram, nums

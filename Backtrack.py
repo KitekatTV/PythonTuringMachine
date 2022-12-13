@@ -2,7 +2,7 @@ import re
 
 def BacktrackFull(IP: str) -> tuple:
     if not IP:
-        return ""
+        return "", []
 
     states = IP.split('/')
     result = ""
