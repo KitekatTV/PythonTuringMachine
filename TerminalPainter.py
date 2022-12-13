@@ -15,7 +15,7 @@ PointerTemplate = [r'\ /',\
 stepNumber = 0
 	
 # Handles everything related to drawing the in terminal
-def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt: bool):
+def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt: bool, bt: str, point: int):
 	# Starts curses
 	window = curses.initscr()
 	curses.noecho()
@@ -35,6 +35,16 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 	# Draws the bar template
 	for i in range(len(BarTemplate)):
 		window.addstr(i, 0, BarTemplate[i])
+
+    # Draw backtracked program (if exists)
+	if bt != "":
+		print(bt, point)
+		lines = bt.split('\n')
+		for l in range(len(lines)):
+			window.addstr(9 + l, 1, lines[i])
+
+	if point != -1:
+		window.addstr(9 + point, 0, '>')
 
 	# Adds numbers to cells
 	if len(numsToPrint) < 20:
@@ -74,5 +84,5 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 	
 
 # Calls theD Draw() function
-def DrawTerminal(numsToPrint: list, startIndex:int, pointerPos: int, stepMode: bool, halt = False,):
-	Draw(numsToPrint, startIndex, pointerPos, stepMode, halt)
+def DrawTerminal(numsToPrint: list, startIndex:int, pointerPos: int, stepMode: bool, halt = False, bt = "", point = -1):
+	Draw(numsToPrint, startIndex, pointerPos, stepMode, halt, bt, point)

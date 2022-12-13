@@ -15,6 +15,10 @@ startIndex = 0
 
 stateIndex = 0
 
+bt = ""
+nums = []
+pointat = -1
+
 # Executes given command
 def Act(command: str) -> str:
 	global pointerPos
@@ -22,14 +26,18 @@ def Act(command: str) -> str:
 	global mainArray
 	global startIndex
 	global stateIndex
+	global pointat
+	global bt
 
 	if type(mainArray) is str:
 		mainArray = list(mainArray)
 
 	if command[0] == 'W':
+		pointat += 1
 		mainArray[selectedIndex] = str(command[1])
 
 	elif command[0] == 'R':
+		pointat += 1
 		selectedIndex += 1
 
 		if pointerPos == 19:
@@ -42,6 +50,7 @@ def Act(command: str) -> str:
 			mainArray.append(' ')
 
 	elif command[0] == 'L':
+		pointat += 1
 		selectedIndex -= 1
 
 		if pointerPos == 1 and startIndex != 0:
@@ -55,6 +64,7 @@ def Act(command: str) -> str:
 			selectedIndex = 0
 
 	elif command[0] == 'I':
+		pointat += 1
 		if command[1] == mainArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
 
@@ -64,14 +74,16 @@ def Act(command: str) -> str:
 					return "Halt"
 
 				elif status == "OK":
-					DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+					DrawTerminal(mainArray, startIndex, pointerPos, stepMode, False, bt, pointat)
 
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
+			pointat += 1
 		else:
 			return "NoDelay"
 
 	elif command[0] == 'N':
+		pointat += 1
 		if command[1] != mainArray[selectedIndex]:
 			addcommands = command[3:-1].split('.')
 
@@ -85,14 +97,17 @@ def Act(command: str) -> str:
 
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
+			pointat += 1
 		else:
 			return "NoDelay"
 
 	elif command[0] == 'C':
+		pointat += 1
 		stateIndex = int(command[1:])
 		return "ChangeState"
 
 	elif command[0] == 'H':
+		pointat += 1
 		return "Halt"
 
 	return "OK"
@@ -104,8 +119,11 @@ def Run(commands: list):
 	global mainArray
 	global startIndex
 	global stateIndex
+	global bt
+	global nums
+	global pointat
 
-	DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+	DrawTerminal(mainArray, startIndex, pointerPos, stepMode, False, bt, pointat)
 
 	if not stepMode:
 		sleep(1)
@@ -113,17 +131,19 @@ def Run(commands: list):
 	status = "Begin"
 	
 	while status != "Halt":
+		if bt:
+			pointat = nums[stateIndex]
 		for c in commands[stateIndex]:
 			status = Act(c)
 			if status == "Halt":
-				DrawTerminal(mainArray, startIndex, pointerPos, False, True)
+				DrawTerminal(mainArray, startIndex, pointerPos, False, True, bt, pointat)
 				break
 
 			elif status == "ChangeState":
 				break
 
 			elif status == "OK":
-				DrawTerminal(mainArray, startIndex, pointerPos, stepMode)
+				DrawTerminal(mainArray, startIndex, pointerPos, stepMode, False, bt, pointat)
 
 			if status != "NoDelay" and not stepMode:
 				sleep(commandDelay)
@@ -136,6 +156,7 @@ def ParseArguments():
 	parser.add_argument('-s', '--step', action='store_true', help='Enables step-by-step mode')
 	parser.add_argument('-d', '--delay', type=int, help='Sets delay between steps in seconds. Does nothing in step-by-step mode')
 	parser.add_argument('-r', '--raw', type=str, help='Raw input')
+	parser.add_argument('-b', '--backtrack', action='store_true', help='Enables backtrack')
 	Args = parser.parse_args()
 	return Args
 
@@ -145,6 +166,8 @@ def Entry():
 	global stepMode
 	global commandDelay
 	global mainArray
+	global bt
+	global nums
 
 	args = ParseArguments()
 	path = args.path
@@ -159,7 +182,7 @@ def Entry():
 		print(f"ERR: No such file - {path}")
 		return
 
-	iSeq, commandLists = CommandLists(path, args.raw)
+	iSeq, commandLists, bt, nums = CommandLists(path, args.raw, args.backtrack)
 
 	if commandLists is not None:
 		input("STATUS: Compilation successful. Press \"Enter\" to begin program execution\n")
