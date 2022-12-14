@@ -22,12 +22,11 @@ Template of the pointer that is drawn to terminal
 stepNumber = 0
 """int: Number of current step"""
 
-done = False
-"""bool: Indicates if backtracked is drawn
+startLine = 0
+"""int: Number of the first line of the backtracked program shown below the tape
 
-True if -b argument is used and backtracked program has been printed to terminal. False otherwise
+If the program is long, then only 30 lines beginning at ``startLine`` are shown
 """
-
 
 def DrawTerminal(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt = False, bt = "", point = -1):
 	"""Handles everything related to drawing to the terminal
@@ -58,19 +57,28 @@ def DrawTerminal(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: 
 	curses.cbreak()
 	window.keypad(True)
 
-	global done
-	if bt != "" and not done:
-		done = True
-		lines = bt.split('\n')
-		window.addstr(8, 1, '_' * 89)
-		window.addstr(9 + len(lines), 1, '‾' * 89)
-		for i in range(len(lines)):
-			window.addstr(9 + i, 0, f"|  | {lines[i]}" + (' ' * (85 - len(lines[i])) + '|'))
+	global startLine
+	if bt != "":
+		if point != -1:
+			if point > startLine + 30:
+				startLine = point - 10
+			elif point < startLine:
+				startLine = max(point - 10, 0)
 
-	if bt != "" and point != -1:
-		for i in range(len(bt.split('\n'))):
-			window.addstr(9 + i, 1, '  ')
-		window.addstr(9 + point, 1, '->')
+		window.addstr(8, 1, '_' * 89)
+		window.addstr(40, 1, '‾' * 89)
+		for i in range(31):
+			window.addstr(9 + i, 0, "|  |" + (" " * 86) + '|')
+		lines = bt.split('\n')
+		for i in range(min(len(lines) - startLine, 30)):
+			window.addstr(9 + i, 6, lines[startLine + i])
+		if len(lines) > startLine + 30:
+			window.addstr(39, 6, ". . .")
+		else:
+			window.addstr(39, 6, "<END>")
+
+		if point != -1:
+			window.addstr(9 + point - startLine, 1, "->")
 
 	if halt:
 		window.addstr(7, 0, "STATUS: Program has ended successfully. Press any key to exit...")
