@@ -29,9 +29,9 @@ def HasParseErrors(data: str) -> bool:
 	"""
 	if re.search(r"\biseq\b(?!=)", data):
 		raise Exceptions.MissingArgumentException("iseq")
-	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
+	if re.search(r"\biseq\b=([01B,a-z]*[^01B,a-z;]+?)", data):
 		raise Exceptions.IncorrectArgumentException("iseq")
-	if re.search(r"\biseq\b=([01B]+,)+(?![01B])", data):
+	if re.search(r"\biseq\b=([01Ba-z]+,)+(?![01Ba-z])", data):
 		raise Exceptions.NoAdditionalArgumentException()
 	if re.search(r"(\biseq\b.*){2,}", data):
 		raise Exceptions.RepeatedIseqException()
@@ -193,7 +193,7 @@ def StateParser(path: str) -> tuple:
 		codeText = "".join(f.read().split())
 		if not HasParseErrors(codeText):
 			CheckForWarnings(codeText)
-			anyInputSequence = re.search(r"\biseq\b=[01,]+;", codeText)
+			anyInputSequence = re.search(r"\biseq\b=[01,a-z]+;", codeText)
 			if anyInputSequence:
 				temp = anyInputSequence.group(0)[5:-1]
 				inputSequence = list(temp.replace(',', ' '))
