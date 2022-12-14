@@ -4,6 +4,29 @@ import Exceptions
 from Backtrack import BacktrackFull
 
 def HasParseErrors(data: str) -> bool:
+	"""Checks the program for errors during state parse.
+
+	Throws an exception if a state or input sequence were declared incorrectly.
+	Called before :meth:`HasCommandErrors`.
+
+	Args:
+		data (str): Non-parsed program without whitespaces and linebreaks
+
+	Returns:
+		bool: False if no errors were found, None otherwise
+
+	Raises:
+		MissingArgumentException: If input sequence(iseq) is declared, but unassigned
+		IncorrectArgumentException: If input sequence(iseq) contains any unsupported characters
+		NoAdditionalArgumentException: If input sequence(iseq) has no argument after the last comma
+		RepeatedIseqException: If input sequence(iseq) was used more than once
+		IncorrectIseqUsageException: If input sequence(iseq) is declared, but not at the start of the program
+		MissingSemicolonException: If semicolon after input sequence(iseq) declaration is missing
+		OutOfStateException: If any command is used outside of state
+		MissingStateNameException: If a state is declared without a name
+		InvalidStateNameException: If any state name contains restricted characters (:;{})
+
+	"""
 	if re.search(r"\biseq\b(?!=)", data):
 		raise Exceptions.MissingArgumentException("iseq")
 	if re.search(r"\biseq\b=([01B,]*[^01B,;]+?)", data):
@@ -26,6 +49,23 @@ def HasParseErrors(data: str) -> bool:
 
 
 def HasCommandErrors(data: str) -> bool:
+	"""Checks parsed program for errors in commands
+
+	Throws an exception if any command in any state was declared incorrectly.
+
+	Args:
+		data (str): A string that contains commands
+
+	Returns:
+		bool: False if no errors were found, None otherwise
+
+	Raises:
+		MissingArgumentException: If any command that takes an argument ( write(), if() ) is declared without it
+		IncorrectArgumentException: If any command that takes an argument ( write(), if() ) contains any unsupported characters
+		NotClosedParenthesesException: If unclosed parentheses were found
+		MissingSemicolonException: If semicolon after any command declaration is missing
+
+	"""
 	if re.search(r"\bwrite\b[^(]", data):
 		raise Exceptions.MissingArgumentException("write")
 	if re.search(r"\bwrite\b\([^01Ba-z]", data):
@@ -54,6 +94,15 @@ def HasCommandErrors(data: str) -> bool:
 
 
 def CommandExists(command: str) -> bool:
+	"""Checks if command exists
+
+	Args:
+		command (str): command to check
+
+	Returns:
+		bool: True if passed command exists, False otherwise
+
+	"""
 	if re.match(r"\bwrite\b\(.\)", command):
 		return True
 	if re.match(r">$", command):
@@ -72,6 +121,12 @@ def CommandExists(command: str) -> bool:
 
 
 def CheckForWarnings(data: str):
+	"""Checks the program for non-critical errors
+
+	Args:
+		data (str): Non-parsed program without whitespaces and linebreaks
+
+	"""
 	if ";;" in data:
 		warnings.warn(Exceptions.UnnecessarySemicolonWarning())
 	if not "halt" in data:
@@ -79,6 +134,19 @@ def CheckForWarnings(data: str):
 
 
 def CompileCommand(command: str, stateNames: list) -> str:
+	"""Compiles passed command
+
+	Converts passed command to intermediate command that is used later in the :meth:`TuringMachine.ExecuteCommand` method
+
+	Args:
+		command (str): Command to compile
+
+		stateNames (list): List of state names, that are needed to compile 'tostate' command
+
+	Returns:
+		str: compiled command
+
+	"""
 	if re.match(r"write\(.\)$", command):
 		return f"W{command[6]}."
 	if command == ">":
@@ -104,6 +172,20 @@ def CompileCommand(command: str, stateNames: list) -> str:
 
 
 def StateParser(path: str) -> tuple:
+	"""First part of the program compiler
+
+	Parses program to lists that contain strings with input sequence, state names and uncompiled commands respectively
+
+	Args:
+		path (str): path to the file with the program
+
+	Returns:
+		tuple: input sequence, list of state names, list of uncompiled commands
+
+	Raises:
+		RepeatedStateNameException: If several states share the same name
+
+	"""
 	stateNames = []
 	stateCommands = []
 	inputSequence = '0'
@@ -132,6 +214,19 @@ def StateParser(path: str) -> tuple:
 
 
 def Compile(path: str) -> tuple:
+	"""Second part of the program compiler
+
+	Converts lists of strings with uncompiled commands to list of strings with compiled commands
+
+	Args:
+		path (str): path to the file with the program
+
+	Returns:
+		tuple: input sequence, list of compiled commands
+
+	Raises:
+		UnknownCommandException: If non-existing command was found in the program
+	"""
 	inputSequence, stateNames, stateCommands = StateParser(path)
 	commandStrings = []
 	for i in range(len(stateCommands)):
@@ -149,6 +244,25 @@ def Compile(path: str) -> tuple:
 
 
 def CommandLists(path: str, raw: str, backtrack: bool) -> tuple:
+	"""Converts compiled strings to list of commands
+
+	Converts list of compiled commands to list of commands for later use in :meth:`TuringMachine.Entry`
+
+	Args:
+		path (str): path to the file with the program
+
+		raw (str): raw string (contains compiled, but not parsed program)
+
+		backtrack (bool): if true, decompile program to print below the tape for easier debugging
+
+	Returns:
+		tuple: input sequence, list of compiled commands, backtracked program, list of numbers of lines where states are defined
+
+	Raises:
+		EmptyFileException: If the file at the specified path is empty
+		CompileException: If fatal error that was not detected by :meth:`HasParseErrors` and :meth:`HasCommandErrors` occured
+
+	"""
 	if not raw:
 		inputSequence, commandStrings = Compile(path)
 		if commandStrings == "":
