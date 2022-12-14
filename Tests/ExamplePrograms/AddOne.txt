@@ -1,0 +1,21 @@
+iseq = 1011;
+
+FindEnd : State {
+	if(!B) { >; };
+	if(B) {
+		<;
+		tostate(Carry);
+	};
+}
+
+
+Carry : State {
+	if(1) {
+		write(0);
+		<;
+	};
+	if(!1) {
+		write(1);
+		halt;
+	};
+}

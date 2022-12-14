@@ -1,0 +1,147 @@
+iseq = 1011a11001;
+
+Right : State {
+	if(0) { >; };
+	if(1) { >; };
+	if(a) { >; };
+	if(B) {
+		<;
+		tostate(Read);
+	};
+}
+
+Read : State {
+	if(0) {
+		write(c);
+		<;
+		tostate(Have0);
+	};
+	if(1) {
+		write(c);
+		<;
+		tostate(Have1);
+	};
+	if(a) {
+		write(B);
+		<;
+		tostate(Rewrite);
+	};
+}
+
+Have0 : State {
+	if (0) { <; };
+	if (1) { <; };
+	if (a) {
+		<;
+		tostate(Add0);
+	};
+}
+
+Have1 : State {
+	if (0) { <; };
+	if (1) { <; };
+	if (a) {
+		<;
+		tostate(Add1);
+	};
+}
+
+Add0 : State {
+	if(0) {
+		write(o);
+		>;
+		tostate(Back0);
+	};
+	if(B) {
+		write(o);
+		>;
+		tostate(Back0);
+	};
+	if(1) {
+		write(i);
+		>;
+		tostate(Back0);
+	};
+	if(o) { <; };
+	if(i) { <; };
+}
+
+Add1 : State {
+	if(0) {
+		write(i);
+		>;
+		tostate(Back1);
+	};
+	if(B) {
+		write(i);
+		>;
+		tostate(Back1);
+	};
+	if(1) {
+		write(o);
+		<;
+		tostate(Carry);
+	};
+	if(o) { <; };
+	if(i) { <; };
+}
+
+Carry : State {
+	if(0) {
+		write(1);
+		>;
+		tostate(Back1);
+	};
+	if(B) {
+		write(1);
+		>;
+		tostate(Back1);
+	};
+	if(1) {
+		write(0);
+		<;
+	};
+}
+
+Back0 : State {
+	if(0) { >; };
+	if(1) { >; };
+	if(o) { >; };
+	if(i) { >; };
+	if(a) { >; };
+	if(c) {
+		write(0);
+		<;
+		tostate(Read);
+	};
+}
+
+Back1 : State {
+	if(0) { >; };
+	if(1) { >; };
+	if(o) { >; };
+	if(i) { >; };
+	if(a) { >; };
+	if(c) {
+		write(1);
+		<;
+		tostate(Read);
+	};
+}
+
+Rewrite : State {
+	if(o) {
+		write(0);
+		<;
+	};
+	if(i) {
+		write(1);
+		<;
+	};
+	if(0) { <; };
+	if(1) { <; };
+	if(B) {
+		>;
+		halt;
+	};
+}
