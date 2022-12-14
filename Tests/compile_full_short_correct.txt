@@ -1,5 +1,0 @@
-0 : State {
-	write(0);
-	>;
-	halt;
-}

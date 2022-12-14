@@ -1,0 +1,47 @@
+iseq = 111;
+
+each: State {
+	if(B) {
+		>;
+		halt;
+	};
+	if(1) {
+		write(B);
+		>;
+		tostate(sep);
+	};
+}
+
+sep: State {
+	if(B) {
+		>;
+		tostate(add);
+	};
+	if(1) { >; };
+}
+
+add: State {
+	if(B) {
+		write(1);
+		<;
+		tostate(sepL);
+	};
+	if(1) { >; };
+}
+
+sepL: State {
+	if(B) {
+		<;
+		tostate(next);
+	};
+	if(1) { <; };
+}
+
+next: State {
+	if(B) {
+		write(1);
+		>;
+		tostate(each);
+	};
+	if(1) { <; };
+}

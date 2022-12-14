@@ -1,0 +1,21 @@
+a : State {
+	write(0);
+	>;
+	tostate(b);
+}
+
+b : State {
+	>;
+	tostate(c);
+}
+
+c : State {
+	write(1);
+	>;
+	tostate(d);
+}
+
+d : State {
+	>;
+	tostate(a);
+}

@@ -106,6 +106,9 @@ def ExecuteCommand(command: str) -> str:
 				if status == "Halt":
 					return "Halt"
 
+				elif status == "ChangeState":
+					return "ChangeState"
+
 				elif status == "OK":
 					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
 
@@ -125,6 +128,9 @@ def ExecuteCommand(command: str) -> str:
 				status = ExecuteCommand(addcommands[a])
 				if status == "Halt":
 					return "Halt"
+
+				elif status == "ChangeState":
+					return "ChangeState"
 
 				elif status == "OK":
 					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode)
