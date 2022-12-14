@@ -1,6 +1,17 @@
 import re
 
 def BacktrackFull(IP: str) -> tuple:
+    """Backtracks whole program
+
+    Decompiled compiled string to program and formats it to match a pattern (every line contains only one command)
+
+    Args:
+        IP (str): compiled program
+
+    Returns:
+         tuple: string containing backtracked program and list of numbers that point to lines where states are defined
+
+    """
     if not IP:
         return "", []
 
@@ -22,6 +33,17 @@ def BacktrackFull(IP: str) -> tuple:
 
 
 def BacktrackCommand(command: str) -> str:
+    """Backtracks one command
+
+    Decompiles compiled command
+
+    Args:
+        command (str): compiled command
+
+    Returns:
+         str: decompiled command
+
+    """
     if command[0] == 'R':
         return "    >;\n"
     if command[0] == 'L':

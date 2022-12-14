@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import os.path
 from time import sleep
 
@@ -6,20 +6,51 @@ from TerminalPainter import DrawTerminal
 from Compiler import CommandLists
 
 stepMode = False
+"""bool: Step-by-step mode
+
+True if step-by-step is enabled, False otherwise
+"""
 commandDelay = 1
+"""int: Delay between commands"""
+
 pointerPosition = 10
+"""int: Current position of the pointer"""
+
 selectedIndex = 9
+"""int: Index of the element under the pointer"""
 
 mainArray = []
+"""list: A list that stores all symbols that are currently on the tape"""
+
 startIndex = 0
+"""int: it is impossible to display the whole tape since it is infinite, so only 19 values from list beginning from the `startIndex` are shown"""
 
 stateIndex = 0
+"""int: Index of current state"""
 
 backtrackedProgram = ""
+"""str: Backtracked program
+
+A string that contains the backtracked program
+"""
+
 stateLinesIndexes = []
+"""list: A list that contains numbers that point to lines where states are defined"""
+
 linePointerPosition = -1
+"""type: Position of line pointer"""
+
 
 def ExecuteCommand(command: str) -> str:
+	"""Executes given command
+
+	Args:
+		command (str): a command to execute
+
+	Returns:
+		 str: result of execution
+
+	"""
 	global pointerPosition
 	global selectedIndex
 	global mainArray
@@ -117,6 +148,15 @@ def ExecuteCommand(command: str) -> str:
 
 
 def Begin(commands: list):
+	"""Main method
+
+	Calls :meth:`TerminalPainter.DrawTerminal` and :meth:`ExecuteCommand` in order to execute given commands and draw the output to the terminal.
+	Also handles delays between commands if step-by-step mode is disabled
+
+	Args:
+		commands (list): list of commands to execute
+
+	"""
 	global stepMode
 	global mainArray
 	global startIndex
@@ -155,6 +195,14 @@ def Begin(commands: list):
 
 
 def ParseArguments():
+	"""Uses argparse library methods to parse command-line arguments
+
+	Detailed description
+
+	Returns:
+		dict: A dictionary that contains all parsed arguments
+
+	"""
 	parser = argparse.ArgumentParser()
 	parser.add_argument('path', type=str, help='Path to program file')
 	parser.add_argument('-s', '--step', action='store_true', help='Enables step-by-step mode')
@@ -166,6 +214,14 @@ def ParseArguments():
 
 
 def Entry():
+	"""Program entry point
+
+	Gets parsed arguments from methods :meth:`ParseArguments` and :meth:`Compiler.CommandLists` respectively and passes them to :meth:`Begin`
+
+	Raises:
+		FileNotFoundError: If file at path was not found
+
+	"""
 	global stepMode
 	global commandDelay
 	global mainArray

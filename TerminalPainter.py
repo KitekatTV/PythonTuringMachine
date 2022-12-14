@@ -1,4 +1,4 @@
-﻿import curses
+import curses
 
 barTemplate = [r' _________________________________________________________________________________________ ',\
 			   r'|    \                                                                               /    |',\
@@ -7,15 +7,52 @@ barTemplate = [r' ______________________________________________________________
 			   r'|‾‾‾‾‾/˙‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾ ‾‾‾˙\‾‾‾‾‾|',\
 			   r'|    /                                                                               \    |',\
 			   r' ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ ']
+"""str: Tape template
+
+Template of the tape that is drawn to terminal
+"""
 
 pointerTemplate = [r'\ /',\
 				   r'_V_']
+"""str: Pointer template
+
+Template of the pointer that is drawn to terminal
+"""
 
 stepNumber = 0
+"""int: Number of current step"""
+
 done = False
+"""bool: Indicates if backtracked is drawn
+
+True if -b argument is used and backtracked program has been printed to terminal. False otherwise
+"""
 
 
-def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt: bool, bt: str, point: int):
+def DrawTerminal(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt = False, bt = "", point = -1):
+	"""Handles everything related to drawing to the terminal
+
+	Prints the tape and the pointer to the teminal.
+	Fills tape cells with numbers and characters.
+	Awaits the user input if step mode is enabled.
+	Stops the program then `halt` is passed.
+
+	Args:
+		numsToPrint (list): list of all values on the tape
+
+		startIndex (int): it is impossible to display the whole tape since it is infinite, so only 19 values from list beginning from the `startIndex` are shown
+
+		pointerPos (int): current pointer position
+
+		stepMode (bool): True if step-by-step is enabled, False otherwise
+
+		halt (bool): stops the program when True, otherwise does nothing
+
+		bt (str): string that contains backtracked program
+
+		point (int): current line pointer position
+
+	"""
 	window = curses.initscr()
 	curses.noecho()
 	curses.cbreak()
@@ -69,7 +106,3 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 		window.addstr(7, 0, f"STATUS: Step-by-step mode is active [{s}]. Press any key to move to the next step...")
 		stepNumber += 1
 		window.getch()
-
-
-def DrawTerminal(numsToPrint: list, startIndex:int, pointerPos: int, stepMode: bool, halt = False, bt = "", point = -1):
-	Draw(numsToPrint, startIndex, pointerPos, stepMode, halt, bt, point)
