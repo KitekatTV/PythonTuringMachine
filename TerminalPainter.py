@@ -42,6 +42,7 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 		curses.nocbreak()
 		window.keypad(False)
 		curses.echo()
+		curses.endwin()
 		return
 
 	for i in range(len(barTemplate)):
