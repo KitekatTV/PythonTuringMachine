@@ -125,6 +125,9 @@ def Begin(commands: list):
 	global stateLinesIndexes
 	global linePointerPosition
 
+	if backtrackedProgram:
+		linePointerPosition = 0
+
 	DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
 
 	if not stepMode:

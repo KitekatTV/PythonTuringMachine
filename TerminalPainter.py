@@ -28,15 +28,11 @@ def Draw(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, ha
 		window.addstr(8, 1, '_' * 89)
 		window.addstr(9 + len(lines), 1, '‾' * 89)
 		for i in range(len(lines)):
-			window.addstr(9 + i, 0, '|')
-			window.addstr(9 + i, 90, '|')
-		for l in range(len(lines)):
-			window.addstr(9 + l, 5, lines[l])
+			window.addstr(9 + i, 0, f"|  | {lines[i]}" + (' ' * (85 - len(lines[i])) + '|'))
 
-	for i in range(len(bt.split('\n'))):
-		window.addstr(9 + i, 0, '|  | ')
-
-	if point != -1:
+	if bt != "" and point != -1:
+		for i in range(len(bt.split('\n'))):
+			window.addstr(9 + i, 1, '  ')
 		window.addstr(9 + point, 1, '->')
 
 	if halt:

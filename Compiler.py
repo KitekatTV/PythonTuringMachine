@@ -22,13 +22,13 @@ def HasParseErrors(data: str) -> bool:
 		raise Exceptions.MissingStateNameException()
 	if re.search(r"((?<=[;}])|^(?!iseq=)[^;]+;)[^;:}{]+?[;:}{][^}]*?:\bState\b", data):
 		raise Exceptions.InvalidStateNameException(re.search(r"(?<=[;}])[^;:}{]+?[;:}{][^}]*?:\bState\b", data))
-	return True
+	return False
 
 
 def HasCommandErrors(data: str) -> bool:
 	if re.search(r"\bwrite\b[^(]", data):
 		raise Exceptions.MissingArgumentException("write")
-	if re.search(r"\bwrite\b\([^01B]", data):
+	if re.search(r"\bwrite\b\([^01Ba-z]", data):
 		raise Exceptions.IncorrectArgumentException("write")
 	if re.search(r"\bwrite\b\(.([^)]|$)", data):
 		raise Exceptions.NotClosedParenthesesException("write")
@@ -38,9 +38,9 @@ def HasCommandErrors(data: str) -> bool:
 		raise Exceptions.MissingSemicolonException("Move pointer command (\"<\" or  \">\")")
 	if re.search(r"\bif\b(?!\()", data):
 		raise Exceptions.MissingArgumentException("if")
-	if re.search(r"\bif\b\(([^01B]{2}|[01B]!)", data):
+	if re.search(r"\bif\b\(([^01Ba-z]{2}|[01Ba-z]!)", data):
 		raise Exceptions.IncorrectArgumentException("if")
-	if re.search(r"\bif\b\(([01B]|![01B])[^)]", data):
+	if re.search(r"\bif\b\(([01Ba-z]|![01Ba-z])[^)]", data):
 		raise Exceptions.NotClosedParenthesesException("if")
 	if re.search(r"\bif\b\(.{1,2}\)(?!{)", data):
 		raise Exceptions.MissingStatementBodyException("if")
