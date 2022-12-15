@@ -1,200 +1,166 @@
 import pytest
+import warnings
+
+from os import listdir
 
 import sys
 sys.path.append('../PythonTuringMachine')
 
 import Exceptions
-from Compiler import CheckForCommandErrors
+from Compiler import HasParseErrors
+from Compiler import HasCommandErrors
+from Compiler import CommandExists
 from Compiler import CompileCommand
+from Compiler import StateParser
 from Compiler import Compile
 from Compiler import CommandLists
-from Compiler import CheckIfExists
-from Compiler import StateParser
-from Compiler import CheckForWarnings
-from Compiler import CheckForParseErrors
 
-# StateParser tests
-def test_parse_short():
-	assert StateParser("Tests/compile_full_short_correct.txt") == ('B', ['0'], ["write(0);>;halt;"])
 
-def test_parse_long():
-	assert StateParser("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], ['0'], ['if(!B){write(1);>;write(0);>;};if(1){>;>;>;write(B);halt;};halt;'])
+# HasParseErrors tests
+def test_has_parse_errors_correct():
+	assert HasParseErrors("iseq=0101;0:State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}") == False
 
-def test_parse_complex():
-	assert StateParser("Tests/compile_full_multistate_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], ["0", "1", "mystate"], ["if(!B){write(1);>;write(0);>;};tostate(1);", ">;>;write(B);tostate(mystate);", "<;halt;"])
-
-# CheckForParseErrors tests
-def test_iseq_no_argument():
+def test_has_parse_errors_iseq_no_arg():
 	with pytest.raises(Exceptions.MissingArgumentException):
-		CheckForParseErrors("iseq")
+		HasParseErrors("iseq;0:State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
 
-def test_iseq_incorrect_argument():
+def test_has_parse_errors_iseq_wrong_arg():
 	with pytest.raises(Exceptions.IncorrectArgumentException):
-		CheckForParseErrors("iseq=2323A")
+		HasParseErrors("iseq=FUgyus3uaKO;0:State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
 
-def test_iseq_no_additional_argument():
+def test_has_parse_errors_iseq_no_add_arg():
 	with pytest.raises(Exceptions.NoAdditionalArgumentException):
-		CheckForParseErrors("iseq=101010,")
+		HasParseErrors("iseq=1010,11,;0:State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
 
-def test_iseq_repeat():
+def test_has_parse_errors_iseq_twice():
 	with pytest.raises(Exceptions.RepeatedIseqException):
-		CheckForParseErrors("iseq=01010,010;iseq=111;")
+		HasParseErrors("iseq=11;iseq=101;0:State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
+		
+#def test_has_parse_errors_iseq_no_semicolon():
+#	with pytest.raises(Exceptions.MissingSemicolonException):
+#		HasParseErrors("iseq=110101,11;Mystate:State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
 
-def test_iseq_incorrect_usage():
-	with pytest.raises(Exceptions.IncorrectIseqUsageException):
-		CheckForParseErrors(">;iseq=101;")
-
-def test_iseq_no_semicolon():
-	with pytest.raises(Exceptions.MissingSemicolonException):
-		CheckForParseErrors("iseq=01010,010")
-
-def test_iseq_correct():
-	assert CheckForParseErrors("iseq=1010;") == True
-
-def test_iseq_multisegment_correct():
-	assert CheckForParseErrors("iseq=1010,10101,10;") == True
-
-def test_command_before_state():
+def test_has_parse_errors_out_of_state():
 	with pytest.raises(Exceptions.OutOfStateException):
-		CheckForParseErrors("write(1);mystate:State{}")
+		HasParseErrors("iseq=10;0:State{>;tostate(1);}write(1);1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
 
-def test_command_after_state():
-	with pytest.raises(Exceptions.OutOfStateException):
-		CheckForParseErrors("mystate:State{}write(1);")
-
-def test_command_between_states():
-	with pytest.raises(Exceptions.OutOfStateException):
-		CheckForParseErrors("mystate1:State{}write(1);mystate2:State{}")
-
-def test_missing_state_name():
+def test_has_parse_errors_state_wo_name():
 	with pytest.raises(Exceptions.MissingStateNameException):
-		CheckForParseErrors("mystate:State{>;}State{>;}")
+		HasParseErrors("iseq=11;State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
 
-def test_invalid_state_name():
+def test_has_parse_errors_state_invalid_name():
 	with pytest.raises(Exceptions.InvalidStateNameException):
-		CheckForParseErrors("mys:t{ate:State{}")
-
-def test_state_correct():
-	assert CheckForParseErrors("mystate:State{>;}") == True
+		HasParseErrors("iseq=11;inv}alid:na{me:State{>;tostate(1);}1:State{write(1);if(!0){tostate(endstate);};}endstate:State{halt;}")
 
 
-# CheckForCommandErrors tests
+# HasCommandErrors tests
 def test_write_no_argument():
 	with pytest.raises(Exceptions.MissingArgumentException):
-		CheckForCommandErrors("write;")
+		HasCommandErrors("write;")
 
 def test_write_incorrect_argument():
 	with pytest.raises(Exceptions.IncorrectArgumentException):
-		CheckForCommandErrors("write(a)")
+		HasCommandErrors("write(%)")
 
 def test_write_not_closed_bracket():
 	with pytest.raises(Exceptions.NotClosedParenthesesException):
-		CheckForCommandErrors("write(0")
+		HasCommandErrors("write(0")
 
 def test_write_no_semicolon():
 	with pytest.raises(Exceptions.MissingSemicolonException):
-		CheckForCommandErrors("write(0)")
+		HasCommandErrors("write(0)")
 
 def test_write_correct():
-	assert CheckForCommandErrors("write(0);") == True
+	assert HasCommandErrors("write(0);") == False
 
 def test_move_right_no_semicilon():
 	with pytest.raises(Exceptions.MissingSemicolonException):
-		CheckForCommandErrors(">")
+		HasCommandErrors(">")
 
 def test_move_right_correct():
-	assert CheckForCommandErrors(">;") == True
+	assert HasCommandErrors(">;") == False
 
 def test_move_left_no_semicilon():
 	with pytest.raises(Exceptions.MissingSemicolonException):
-		CheckForCommandErrors("<")
+		HasCommandErrors("<")
 
 def test_move_left_correct():
-	assert CheckForCommandErrors("<;") == True
+	assert HasCommandErrors("<;") == False
 
 def test_if_statement_no_argument():
 	with pytest.raises(Exceptions.MissingArgumentException):
-		CheckForCommandErrors("if")
+		HasCommandErrors("if")
 
 def test_if_statement_incorrect_argument():
 	with pytest.raises(Exceptions.IncorrectArgumentException):
-		CheckForCommandErrors("if(2)")
+		HasCommandErrors("if(2)")
 
 def test_if_statement_incorrect_negative_argument():
 	with pytest.raises(Exceptions.IncorrectArgumentException):
-		CheckForCommandErrors("if(2!)")
+		HasCommandErrors("if(2!)")
 
 def test_if_statement_no_body():
 	with pytest.raises(Exceptions.MissingStatementBodyException):
-		CheckForCommandErrors("if(0)")
+		HasCommandErrors("if(0)")
 
 def test_if_statement_empty_body():
 	with pytest.raises(Exceptions.EmptyStatementBodyException):
-		CheckForCommandErrors("if(0){}")
+		HasCommandErrors("if(0){}")
 
 def test_if_statement_no_semicolon():
 	with pytest.raises(Exceptions.MissingSemicolonException):
-		CheckForCommandErrors("if(0){>;}")
+		HasCommandErrors("if(0){>;}")
 
 def test_if_statement_correct():
-	assert CheckForCommandErrors("if(1){>;};") == True
+	assert HasCommandErrors("if(1){>;};") == False
 
 def test_negative_if_statement_correct():
-	assert CheckForCommandErrors("if(!0){<;};") == True
+	assert HasCommandErrors("if(!0){<;};") == False
 
 def test_halt_missing_semicolon():
 	with pytest.raises(Exceptions.MissingSemicolonException):
-		CheckForCommandErrors("halt")
+		HasCommandErrors("halt")
 
 def test_halt_correct():
-	assert CheckForCommandErrors("halt;") == True
+	assert HasCommandErrors("halt;") == False
 
 
-# CheckForWarning tests
-def test_double_semicolon_warn():
-	with pytest.warns(Exceptions.UnnecessarySemicolonWarning):
-		CheckForWarnings("write(0);;halt;")
-
-def test_no_halt_warn():
-	with pytest.warns(Exceptions.NoExitFunctionWarning):
-		CheckForWarnings(">;>;")
-
-# TODO: CheckIfExists tests
+# CommandExists tests
 def test_exists_write():
-	assert CheckIfExists("write(1);") == True
+	assert CommandExists("write(1);") == True
 
 def test_exists_move_right():
-	assert CheckIfExists(">") == True
+	assert CommandExists(">") == True
 
 def test_exists_move_left():
-	assert CheckIfExists("<") == True
+	assert CommandExists("<") == True
 
 def test_exists_if():
-	assert CheckIfExists("if(1){}") == True
+	assert CommandExists("if(1){}") == True
 
 def test_exists_halt():
-	assert CheckIfExists("halt") == True
+	assert CommandExists("halt") == True
 
-def test_exists_iseq():
-	assert CheckIfExists("iseq=") == True
+def test_exists_tostate():
+	assert CommandExists("tostate(1)") == True
 
 def test_exists_write_similar():
-	assert CheckIfExists("writea(1)") == False
+	assert CommandExists("writea(1)") == False
+
+def test_exists_tostate_similar():
+	assert CommandExists("tostatea(mystate)") == False
 
 def test_exists_move_right_similar():
-	assert CheckIfExists(">a") == False
+	assert CommandExists(">a") == False
 
 def test_exists_move_left_similar():
-	assert CheckIfExists("<a") == False
+	assert CommandExists("<a") == False
 
 def test_exists_if_similar():
-	assert CheckIfExists("ifa(1){}") == False
+	assert CommandExists("ifa(1){}") == False
 
 def test_exists_halt_similar():
-	assert CheckIfExists("halta") == False
-
-def test_exists_iseq_similar():
-	assert CheckIfExists("iseqa=") == False
+	assert CommandExists("halta") == False
 
 # CompileCommand tests
 def test_write_compile_0():
@@ -236,30 +202,51 @@ def test_if_statement_not_B_compile():
 def test_if_statement_long_compile():
 	assert CompileCommand("if(0){>;write(0);<;write(1);}", []) == "I0:R.W0.L.W1:."
 
+def test_tostate_compile():
+	assert CompileCommand("tostate(1)", ['0', '1']) == "C1."
+
+def test_tostate_with_name_compile():
+    assert CompileCommand("tostate(mynextstate)", ["mystate", "mynextstate"]) == "C1."
+
+
+# StateParser tests
+def test_parse_short():
+	assert StateParser("Tests/compile_full_short_correct.txt") == ('0', ['0'], ["write(0);>;halt;"])
+
+def test_parse_long():
+	assert StateParser("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', ' ', '1', '0', '0', '1', '0', '1', ' ', '1', '0', '1', '0', '1', ' ', '1', '0', '0'], ['0'], ['if(!B){write(1);>;write(0);>;};if(1){>;>;>;write(B);halt;};halt;'])
+
+def test_parse_complex():
+	assert StateParser("Tests/compile_full_multistate_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', ' ', '1', '0', '0', '1', '0', '1', ' ', '1', '0', '1', '0', '1', ' ', '1', '0', '0'], ["0", "1", "mystate"], ["if(!B){write(1);>;write(0);>;};tostate(1);", ">;>;write(B);tostate(mystate);", "<;halt;"])
+
 
 # Compile tests
 def test_compile_full_short_correct():
-	assert Compile("Tests/compile_full_short_correct.txt") == ('B', ["W0.R.H."])
-
-def test_compile_full_incorrect():
-	with pytest.raises(Exceptions.CompileException):
-		Compile("Tests/compile_full_short_incorrect.txt")
+	assert Compile("Tests/compile_full_short_correct.txt") == ('0', ["W0.R.H."])
 
 def test_compile_full_long_correct():
-	assert Compile("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], ["NB:W1.R.W0.R:.I1:R.R.R.WB.H:.H."])
+	assert Compile("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', ' ', '1', '0', '0', '1', '0', '1', ' ', '1', '0', '1', '0', '1', ' ', '1', '0', '0'], ["NB:W1.R.W0.R:.I1:R.R.R.WB.H:.H."])
 
 
 # CommandLists tests
 def test_command_list_short_correct():
-	assert CommandLists("Tests/compile_full_short_correct.txt") == ('B', [['W0', 'R', 'H']])
-
-def test_command_list_incorrect():
-	with pytest.raises(Exceptions.CompileException):
-		CommandLists("Tests/compile_full_short_incorrect.txt")
-
-def test_command_list_empty():
-	with pytest.raises(Exceptions.CompileException):
-		CommandLists("Tests/compile_full_empty_file.txt")
+	assert CommandLists("Tests/compile_full_short_correct.txt", "", False) == ('0', [['W0', 'R', 'H']], "", [])
 
 def test_command_list_long_correct():
-	assert CommandLists("Tests/compile_full_long_correct.txt") == (['0', '0', '1', '0', '1', '0', '1', 'B', '1', '0', '0', '1', '0', '1', 'B', '1', '0', '1', '0', '1', 'B', '1', '0', '0'], [['NB:W1.R.W0.R:', 'I1:R.R.R.WB.H:', 'H']])
+    assert CommandLists("Tests/compile_full_long_correct.txt", "", False) == (['0', '0', '1', '0', '1', '0', '1', ' ', '1', '0', '0', '1', '0', '1', ' ', '1', '0', '1', '0', '1', ' ', '1', '0', '0'], [['NB:W1.R.W0.R:', 'I1:R.R.R.WB.H:', 'H']], "", [])
+
+def test_command_list_raw():
+	assert CommandLists("somefile.txt", "W0.R.H.", False) == ('0', [['W0', 'R', 'H']], "", [])
+
+def test_command_list_raw_with_input():
+	assert CommandLists("somefile.txt", "S1010/W0.R.C1./Wa.C2./H.", False) == (['1', '0', '1', '0'], [['W0', 'R', 'C1'], ['Wa', 'C2'], ['H']], "", [])
+
+# Check example programs for compile errors
+@pytest.mark.filterwarnings("ignore")
+def test_example_programs():
+	files = listdir("Tests/ExamplePrograms")
+	try:
+		for file in files:
+			CommandLists(f"Tests/ExamplePrograms/{file}", "", False)
+	except Exceptions.CompileException:
+		pytest.fail(f"Failed to compile {file}")
