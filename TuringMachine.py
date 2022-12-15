@@ -99,29 +99,9 @@ def ExecuteCommand(command: str) -> str:
 			mainArray.insert(0, ' ')
 			selectedIndex = 0
 
-	elif command[0] == 'I':
+	elif command[0] == 'I' or command[0] == 'N':
 		linePointerPosition += 1
-		if command[1] == mainArray[selectedIndex] or (command[1] == 'B' and mainArray[selectedIndex] == ' '):
-			addcommands = command[3:-1].split('.')
-
-			for a in range(len(addcommands)):
-				status = ExecuteCommand(addcommands[a])
-				if status == "Halt" or status == "ChangeState":
-					return status
-
-				elif status == "OK":
-					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
-
-				if a != len(addcommands) - 1 and not stepMode and not now:
-					sleep(commandDelay)
-			linePointerPosition += 1
-		else:
-			linePointerPosition += command.count('.') + 2
-			return "NoDelay"
-
-	elif command[0] == 'N':
-		linePointerPosition += 1
-		if command[1] != mainArray[selectedIndex] or (command[1] == 'B' and mainArray[selectedIndex] != ' '):
+		if (command[0] == 'I' and (command[1] == mainArray[selectedIndex] or (command[1] == 'B' and mainArray[selectedIndex] == ' '))) or (command[0] == 'N' and (command[1] != mainArray[selectedIndex] or (command[1] == 'B' and mainArray[selectedIndex] != ' '))):
 			addcommands = command[3:-1].split('.')
 
 			for a in range(len(addcommands)):
