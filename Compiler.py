@@ -37,8 +37,8 @@ def HasParseErrors(data: str) -> bool:
 		raise Exceptions.RepeatedIseqException()
 	if re.search(r".+\biseq\b", data):
 		raise Exceptions.IncorrectIseqUsageException()
-	if re.search(r"(?>\biseq\b=[^;]+)(?!;)", data):
-		raise Exceptions.MissingSemicolonException("iseq")
+	#TODELETEif re.search(r"(?>\biseq\b=[01Ba-z]+)(?!;)", data):
+	#TODELETE	raise Exceptions.MissingSemicolonException("iseq") # Not needed? IncorrectArgumentException will be thrown instead
 	if re.search(r"(^(?<!{)[^{]*(\b(write|halt|if|tostate)\b|[<>])|(?<=})(\b(write|halt|if|tostate)\b|[<>])[^}]*$|(?=[^{}]*(\b(write|halt|if|tostate)\b|[<>])[^{}]*(?={))[^{}:]+?:State)", data):
 		raise Exceptions.OutOfStateException()
 	if re.search(r"(?<!:)\bState\b", data):
@@ -90,7 +90,7 @@ def HasCommandErrors(data: str) -> bool:
 		raise Exceptions.MissingSemicolonException("if")
 	if re.search(r"\bhalt\b(?!;)", data):
 		raise Exceptions.MissingSemicolonException("halt")
-	return True
+	return False
 
 
 def CommandExists(command: str) -> bool:
@@ -230,7 +230,7 @@ def Compile(path: str) -> tuple:
 	inputSequence, stateNames, stateCommands = StateParser(path)
 	commandStrings = []
 	for i in range(len(stateCommands)):
-		if HasCommandErrors(stateCommands[i]):
+		if not HasCommandErrors(stateCommands[i]):
 			commands = re.compile(r"((?:[^;{]|{[^}]*})+)").split(stateCommands[i])[1::2]
 			output = ""
 			for c in commands:
