@@ -38,7 +38,10 @@ stateLinesIndexes = []
 """list: A list that contains numbers that point to lines where states are defined"""
 
 linePointerPosition = -1
-"""type: Position of line pointer"""
+"""int: Position of line pointer"""
+
+now = False
+"""bool: Program is execited without any delays if true"""
 
 
 def ExecuteCommand(command: str) -> str:
@@ -109,7 +112,7 @@ def ExecuteCommand(command: str) -> str:
 				elif status == "OK":
 					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
 
-				if a != len(addcommands) - 1 and not stepMode:
+				if a != len(addcommands) - 1 and not stepMode and not now:
 					sleep(commandDelay)
 			linePointerPosition += 1
 		else:
@@ -129,7 +132,7 @@ def ExecuteCommand(command: str) -> str:
 				elif status == "OK":
 					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
 
-				if a != len(addcommands) - 1 and not stepMode:
+				if a != len(addcommands) - 1 and not stepMode and not now:
 					sleep(commandDelay)
 			linePointerPosition += 1
 		else:
@@ -165,6 +168,7 @@ def Begin(commands: list):
 	global backtrackedProgram
 	global stateLinesIndexes
 	global linePointerPosition
+	global now
 
 	if backtrackedProgram:
 		linePointerPosition = 0
@@ -189,7 +193,7 @@ def Begin(commands: list):
 			if status == "Halt" or status == "ChangeState":
 				break
 
-			if status != "NoDelay" and not stepMode:
+			if status != "NoDelay" and not stepMode and not now:
 				sleep(commandDelay)
 
 
@@ -204,10 +208,11 @@ def ParseArguments():
 	"""
 	parser = argparse.ArgumentParser()
 	parser.add_argument('path', type=str, help='Path to program file')
-	parser.add_argument('-s', '--step', action='store_true', help='Enables step-by-step mode')
-	parser.add_argument('-d', '--delay', type=int, help='Set delay between steps in seconds. Does nothing in step-by-step mode')
-	parser.add_argument('-r', '--raw', type=str, help='Pass raw string instead of file')
+	parser.add_argument('-s', '--step', action='store_true', help='Enable step-by-step mode')
+	parser.add_argument('-d', '--delay', type=float, help='Set delay between steps in seconds (can be fraction). Does nothing in step-by-step mode')
+	parser.add_argument('-r', '--raw', type=str, help='Pass compiled string instead of file')
 	parser.add_argument('-b', '--backtrack', action='store_true', help='Show decompiled program and currently executed line below')
+	parser.add_argument('-n', '--now', action='store_true', help='Execute program instantly, without any delays. Use with caution, can freeze the terminal or cause lag if "halt" command is missing or unreachable. Does nothing in step-by-step mode')
 	Args = parser.parse_args()
 	return Args
 
@@ -226,12 +231,12 @@ def Entry():
 	global mainArray
 	global backtrackedProgram
 	global stateLinesIndexes
+	global now
 
 	args = ParseArguments()
 	path = args.path
-
-	if args.step:
-		stepMode=True
+	now = args.now
+	stepMode = args.step
 
 	if args.delay is not None:
 		commandDelay = args.delay
