@@ -103,11 +103,8 @@ def ExecuteCommand(command: str) -> str:
 
 			for a in range(len(addcommands)):
 				status = ExecuteCommand(addcommands[a])
-				if status == "Halt":
-					return "Halt"
-
-				elif status == "ChangeState":
-					return "ChangeState"
+				if status == "Halt" or status == "ChangeState":
+					return status
 
 				elif status == "OK":
 					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
@@ -126,14 +123,11 @@ def ExecuteCommand(command: str) -> str:
 
 			for a in range(len(addcommands)):
 				status = ExecuteCommand(addcommands[a])
-				if status == "Halt":
-					return "Halt"
-
-				elif status == "ChangeState":
-					return "ChangeState"
+				if status == "Halt" or status == "ChangeState":
+					return status
 
 				elif status == "OK":
-					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode)
+					DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
 
 				if a != len(addcommands) - 1 and not stepMode:
 					sleep(commandDelay)
@@ -143,6 +137,7 @@ def ExecuteCommand(command: str) -> str:
 			return "NoDelay"
 
 	elif command[0] == 'C':
+		linePointerPosition += 1
 		stateIndex = int(command[1:])
 		return "ChangeState"
 
@@ -186,15 +181,13 @@ def Begin(commands: list):
 			linePointerPosition = stateLinesIndexes[stateIndex]
 		for command in commands[stateIndex]:
 			status = ExecuteCommand(command)
-			if status == "Halt":
-				DrawTerminal(mainArray, startIndex, pointerPosition, False, True, backtrackedProgram, linePointerPosition)
-				break
 
-			elif status == "ChangeState":
-				break
+			halt = status == "Halt"
+			enableStep = stepMode & (status != "Halt" and status != "NoDelay")
 
-			elif status == "OK":
-				DrawTerminal(mainArray, startIndex, pointerPosition, stepMode, False, backtrackedProgram, linePointerPosition)
+			DrawTerminal(mainArray, startIndex, pointerPosition, enableStep, halt, backtrackedProgram, linePointerPosition)
+			if status == "Halt" or status == "ChangeState":
+				break
 
 			if status != "NoDelay" and not stepMode:
 				sleep(commandDelay)

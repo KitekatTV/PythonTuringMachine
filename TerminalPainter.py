@@ -74,7 +74,7 @@ def DrawTerminal(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: 
 			window.addstr(9 + i, 6, lines[startLine + i])
 		if len(lines) > startLine + 30:
 			window.addstr(39, 6, ". . .")
-		else:
+		elif len(lines) > 30:
 			window.addstr(39, 6, "<END>")
 
 		if point != -1:
