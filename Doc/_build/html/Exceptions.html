@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Exceptions module &#8212; PTM 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="TerminalPainter module" href="TerminalPainter.html" />
+    <link rel="prev" title="Compiler module" href="Compiler.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-Exceptions">
+<span id="exceptions-module"></span><h1>Exceptions module<a class="headerlink" href="#module-Exceptions" title="Permalink to this headline">¶</a></h1>
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.CompileException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">CompileException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.CompileException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.CompileWarning">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">CompileWarning</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.CompileWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Warning</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.EmptyFileException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">EmptyFileException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.EmptyFileException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.EmptyStatementBodyException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">EmptyStatementBodyException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.EmptyStatementBodyException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.IncorrectArgumentException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">IncorrectArgumentException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.IncorrectArgumentException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.IncorrectIseqUsageException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">IncorrectIseqUsageException</span></span><a class="headerlink" href="#Exceptions.IncorrectIseqUsageException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.InvalidStateNameException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">InvalidStateNameException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.InvalidStateNameException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.MissingArgumentException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingArgumentException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.MissingArgumentException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.MissingSemicolonException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingSemicolonException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.MissingSemicolonException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.MissingStateNameException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingStateNameException</span></span><a class="headerlink" href="#Exceptions.MissingStateNameException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.MissingStatementBodyException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingStatementBodyException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.MissingStatementBodyException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.NoAdditionalArgumentException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">NoAdditionalArgumentException</span></span><a class="headerlink" href="#Exceptions.NoAdditionalArgumentException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.NoExitFunctionWarning">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">NoExitFunctionWarning</span></span><a class="headerlink" href="#Exceptions.NoExitFunctionWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileWarning" title="Exceptions.CompileWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileWarning</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.NotClosedParenthesesException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">NotClosedParenthesesException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.NotClosedParenthesesException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.OutOfStateException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">OutOfStateException</span></span><a class="headerlink" href="#Exceptions.OutOfStateException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.RepeatedIseqException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">RepeatedIseqException</span></span><a class="headerlink" href="#Exceptions.RepeatedIseqException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.RepeatedStateNameException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">RepeatedStateNameException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.RepeatedStateNameException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.UnknownCommandException">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">UnknownCommandException</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Exceptions.UnknownCommandException" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileException" title="Exceptions.CompileException"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileException</span></code></a></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="Exceptions.UnnecessarySemicolonWarning">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">Exceptions.</span></span><span class="sig-name descname"><span class="pre">UnnecessarySemicolonWarning</span></span><a class="headerlink" href="#Exceptions.UnnecessarySemicolonWarning" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#Exceptions.CompileWarning" title="Exceptions.CompileWarning"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exceptions.CompileWarning</span></code></a></p>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PTM</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">PythonTuringMachine</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="Compiler.html">Compiler module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Exceptions module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TerminalPainter.html">TerminalPainter module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="TuringMachine.html">TuringMachine module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Backtrack.html">Backtrack module</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">PythonTuringMachine</a><ul>
+      <li>Previous: <a href="Compiler.html" title="previous chapter">Compiler module</a></li>
+      <li>Next: <a href="TerminalPainter.html" title="next chapter">TerminalPainter module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, KitekatTV.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/Exceptions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
