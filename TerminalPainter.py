@@ -1,4 +1,5 @@
 import curses
+import numbers_gui
 
 barTemplate = [r' _________________________________________________________________________________________ ',\
 			   r'|    \                                                                               /    |',\
@@ -27,6 +28,8 @@ startLine = 0
 
 If the program is long, then only 30 lines beginning at ``startLine`` are shown
 """
+
+inputLine = "Empty"
 
 def DrawTerminal(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: bool, halt = False, bt = "", point = -1):
 	"""Handles everything related to drawing to the terminal
@@ -80,7 +83,9 @@ def DrawTerminal(numsToPrint: list, startIndex: int, pointerPos: int, stepMode: 
 		if point != -1:
 			window.addstr(9 + point - startLine, 1, "->")
 
+	global inputLine
 	if halt:
+		numbers_gui.display("PTM Result", str(inputLine), str("".join(numsToPrint)))
 		window.addstr(7, 0, "STATUS: Program has ended successfully. Press any key to exit...")
 		window.clrtoeol()
 		window.getch()

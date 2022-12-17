@@ -2,6 +2,7 @@ import argparse
 import os.path
 from time import sleep
 
+import TerminalPainter
 from TerminalPainter import DrawTerminal
 from Compiler import CommandLists
 
@@ -159,7 +160,7 @@ def Begin(commands: list):
 		sleep(1)
 
 	status = "Begin"
-	
+
 	while status != "Halt":
 		if backtrackedProgram:
 			linePointerPosition = stateLinesIndexes[stateIndex]
@@ -226,6 +227,7 @@ def Entry():
 
 	inputSequence, commandLists, backtrackedProgram, stateLinesIndexes = CommandLists(path, args.raw, args.backtrack)
 
+	TerminalPainter.inputLine = "".join(inputSequence)
 	if commandLists is not None:
 		input("STATUS: Compilation successful. Press \"Enter\" to begin program execution\n")
 		if type(inputSequence) is str:
